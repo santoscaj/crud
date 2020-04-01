@@ -1,7 +1,7 @@
 <template>
   <div class="hello">
-      <Sidebar/>
-      <Data/>
+      <Sidebar class="left"/>
+      <Data class="right" />
   </div>
 </template>
 
@@ -24,10 +24,14 @@ export default Vue.extend({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.left{
+  flex: 0 1 250px;  
+}
+
 .hello{
   width: 100%;
   height: 100%;
-  display:flex;  
+  display:flex;
 }
 
 h3 {
