@@ -1,17 +1,26 @@
 <template>
   <div class="hello">
-    Hwllo 1
+    <div v-for="user in get" :key="user.id">
+
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
+import { mapGetters } from 'vuex'
 
 export default Vue.extend({
   name: 'HelloWorld',
   props: {
     msg: String,
   },
+  computed:{
+    ...mapGetters([
+      'get', 
+      'getID'
+    ])
+  }
 });
 </script>
 

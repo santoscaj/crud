@@ -7,14 +7,14 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import Sidebar from '@/components/Sidebar.vue'
-import Data from '@/components/Data.vue'
+import Sidebar from '@/components/Sidebar.vue';
+import Data from '@/components/Data.vue';
 
 export default Vue.extend({
   name: 'HelloWorld',
   components: {
     Sidebar,
-    Data
+    Data,
   },
   props: {
     msg: String,
@@ -25,7 +25,7 @@ export default Vue.extend({
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .left{
-  flex: 0 1 250px;  
+  flex: 0 0 200px;  
 }
 
 .hello{
