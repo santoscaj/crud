@@ -38,10 +38,12 @@ export default new Vuex.Store({
         lastName: 'user',
         telephones: [
           {
+            id: 0,
             name: 'home',
             details: '003-123-4567',
           },
           {
+            id: 2,
             name: 'work',
             details: '003-123-4567',
           },
