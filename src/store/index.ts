@@ -26,7 +26,8 @@ export default new Vuex.Store({
         lastName: 'user',
         telephones: [
           {
-2
+            id: 0,
+            name: 'home',
             details: '002-123-4567',
           },
         ],
