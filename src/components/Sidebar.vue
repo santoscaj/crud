@@ -1,7 +1,8 @@
 <template>
   <div class="hello">
-    <div class="block" v-for="user in get" :key="user.id" @click="setSeletedUser(user.id)">
-      <div class="line">{{user.firstName}} {{user.lastName}}</div>
+
+    <div class="block" v-for="user in get" :key="user.id">
+      <router-link :to="'/user/'+user.id">{{user.firstName}} {{user.lastName}}</router-link>
     </div>
     <div class="block" id="addUser"  @click="setSeletedUser(0)">
       +

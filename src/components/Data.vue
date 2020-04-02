@@ -1,13 +1,12 @@
 <template>
   <div class="hello">
     <!-- <div class="display-area"> -->
-      <div class="columns" v-if="getSelectedUserId == 0 ">
+      <!-- <div class="columns" v-if="getSelectedUserId == 0 ">
         new user
-      </div>
+      </div> -->
 
-
-      <div class="columns" v-else>
-        {{getSelectedUser.id}}
+      <div class="columns">
+        <!-- {{getSelectedUser.id}} -->
 
         <div class="columns group">
 
