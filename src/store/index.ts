@@ -63,6 +63,32 @@ export default new Vuex.Store({
     //     return state.users.find( (user) => user.id == id);
     //   };
     // },
+    getUserPlainProperties: (state, getters)=>(id: number | string) =>{
+      var currentUser = getters.getID(id)
+      if(!currentUser) return 0;
+      
+      var userProperties = Object.keys(currentUser)
+      return userProperties.filter(prop => {
+        if (prop =='id')
+          return false
+        if(Array.isArray(currentUser[prop]))
+          return false
+        return true
+      } )
+    },
+
+    getUserArrayProperties : (state, getters) => (id: number | string )=>{
+      var currentUser = getters.getID(id)
+      if(!currentUser) return 0;
+
+      var userProperties = Object.keys(currentUser)
+      return userProperties.filter(prop => Array.isArray(currentUser[prop]) ).map(arrProp=>{
+        var label = arrProp.charAt(0).toUpperCase() + arrProp.slice(1,)
+        label = (label.match(/[A-Z]([a-z]|[0-9])*/g) || ['']).join(' ')
+        return { name:arrProp, label, values: (Object.keys(currentUser[arrProp]))}
+      })
+    },
+
     getSelectedUser(state, getters){
       return getters.getID(state.selectedUserId)
     },
