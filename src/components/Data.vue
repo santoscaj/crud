@@ -1,84 +1,66 @@
 <template>
-  <div class="hello">
-    <!-- <div class="display-area"> -->
-      <!-- <div class="columns" v-if="getSelectedUserId == 0 ">
-        new user
-      </div> -->
+<div class="columns">
+  <template v-for="property in Object.keys(getSelectedUser).filter(key => key !== 'id')">
+      <div class="row" :key="getSelectedUser.id + property">
+        <div class="label"> {{ property }} </div>
+        <div class="values" v-if="Array.isArray(getSelectedUser[property])">
+          <div class="value" v-for="secondProperty in Object.keys(getSelectedUser[property])" :key="getSelectedUser.id + property + secondProperty">
 
-      <div class="columns">
-        <!-- {{getSelectedUser.id}} -->
-
-        <div class="columns group">
-
-          <div class="row" v-for="prop in getPlainProperties" :key="prop">
-              <div class="label"> {{startCase(prop)}}  </div>
-              <div class="value"> <input type="text" :value="getSelectedUser[prop]"/> </div>
           </div>
-
-          <div class="columns" v-for="prop in getArrayProperties" :key="prop.name">
-            <div class="mini-title">{{prop.label}}</div>
-            <div v-for="subProp  in getSelectedUser[prop.name]" :key="subProp.name" class="row">
-              <div class="label"> {{startCase(subProp.name)}} </div>
-              <div class="value1"> <input type="text" :value="subProp.details"/> </div>
-              <div class="value2" @click="deleteField(prop.name, subProp.name)">x</div>
-            </div>
-            <div>+</div>
-          </div>
-
         </div>
-
-        <div class="last-row">
-          <button class="button">delete</button>
-          <button class="button">reset</button>
-          <button class="button">save</button>
+        <div v-else class="value">
+          <input type="text" :value="getSelectedUser[property]"/>
         </div>
       </div>
+  </template>
 
-    <!-- </div> -->
-
+  <div class="last-row">
+    <button class="button">delete</button>
+    <button class="button">reset</button>
+    <button class="button">save</button>
   </div>
+</div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapGetters } from 'vuex'
-import _startCase from 'lodash/startCase'
+import { mapGetters } from 'vuex';
+import _startCase from 'lodash/startCase';
 
 export default Vue.extend({
-  name: 'HelloWorld',
+  name: 'Data',
   props: {
     msg: String,
   },
-  computed:{
+  computed: {
     ...mapGetters([
+      'getUsers',
       'getSelectedUser',
-      'getUserPlainProperties',
-      'getUserArrayProperties'
     ]),
-    id(){
-      return this.$route.params.id
+    id() {
+      return this.$route.params.id;
     },
-    getSelectedUser(){
-      var id = this.$route.params.id;
-      return this.$store.getters['getID'](id)
+    getSelectedUser() {
+      let id = this.$route.params.id;
+      return this.$store.getters.getUserByID(id);
     },
-    getPlainProperties(){
-      var id = this.$route.params.id;
-      return this.$store.getters['getUserPlainProperties'](id)
+    getPlainProperties() {
+      let id = this.$route.params.id;
+      return this.$store.getters.getUserPlainProperties(id);
     },
-    getArrayProperties(){
-      var id = this.$route.params.id;
-      return this.$store.getters['getUserArrayProperties'](id)
-    }
+    getArrayProperties() {
+      let id = this.$route.params.id;
+      return this.$store.getters.getUserArrayProperties(id);
+    },
   },
-  methods:{
-    deleteField(x: number,y:number){
-      console.log(x,y)
+  methods: {
+    deleteField(x: number, y: number) {
+      console.log(x, y);
     },
-    startCase(label: string){
-      return _startCase(label)
-    }
-  }
+    startCase(label: string) {
+      return _startCase(label);
+    },
+  },
 });
 </script>
 

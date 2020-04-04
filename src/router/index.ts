@@ -1,7 +1,7 @@
-import Vue from 'vue' 
-import Router from 'vue-router'
+import Vue from 'vue';
+import Router from 'vue-router';
 
-import Data from '@/components/Data.vue'
+import Data from '@/components/Data.vue';
 
 Vue.use(Router);
 
@@ -11,12 +11,12 @@ export default new Router({
         {
         path: '/home/',
         name: 'home',
-        component: Data
+        component: Data,
         },
         {
         path: '/user/:id',
         name: 'home/user',
-        component: Data
+        component: Data,
         },
-    ]
-})
+    ],
+});

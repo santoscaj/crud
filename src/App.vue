@@ -15,13 +15,6 @@ export default Vue.extend({
     HelloWorld,
   },
   beforeCreate() {
-    const allUsers = this.$store.getters['get'];
-    var maxUserId = 0;
-    allUsers.forEach((user : any) => {
-      if (user.id > maxUserId)
-        maxUserId = user.id
-    })
-    console.log('max user id ',this.$store.state.maxUserId)
   },
 });
 </script>

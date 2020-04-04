@@ -12,24 +12,29 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex';
 
 export default Vue.extend({
   name: 'HelloWorld',
   props: {
     msg: String,
   },
-  computed:{
+  computed: {
     ...mapGetters([
       'getUsers',
-      'getUserByID'
-    ])
+      'getUserByID',
+    ]),
   },
-  methods:{
+  watch: {
+    '$route.params.id'(newValue, oldValue) {
+      console.log(newValue);
+    },
+  },
+  methods: {
     ...mapMutations([
-      'setSeletedUser'
-    ])
-  }
+      'setSeletedUser',
+    ]),
+  },
 });
 </script>
 

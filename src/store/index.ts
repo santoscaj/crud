@@ -2,12 +2,36 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import { v4 } from 'uuid'
 
+
 Vue.use(Vuex);
+
+class Telephone{
+  id: string = v4()
+  name: string = ''
+  number: string = ''
+}
+
+class User{
+  id: string = v4()
+  firstName: string = ''
+  lastName: string = ''
+  telephones: Telephone[] = [{
+    id: v4(),
+    name: '',
+    number: '',
+  }]
+}
+
+interface State{
+  selectedUserId: string
+  selectedUser: User
+  users: User[]
+}
 
 export default new Vuex.Store({
   state: {
-    maxUserId: 0,
-    selectedUserId: 0,
+    selectedUserId: '',
+    selectedUser: new User(),
     users: [
       {
         id: v4(),
@@ -17,7 +41,7 @@ export default new Vuex.Store({
           {
             id: v4(),
             name: 'home',
-            details: '001-123-4567',
+            number: '001-123-4567',
           },
         ],
       },
@@ -29,7 +53,7 @@ export default new Vuex.Store({
           {
             id: v4(),
             name: 'home',
-            details: '002-123-4567',
+            number: '002-123-4567',
           },
         ],
       },
@@ -41,73 +65,38 @@ export default new Vuex.Store({
           {
             id: v4(),
             name: 'home',
-            details: '003-123-4567',
+            number: '003-123-4567',
           },
           {
             id: v4(),
             name: 'work',
-            details: '003-123-4567',
+            number: '003-123-4567',
           },
         ],
       },
     ],
   },
   getters: {
-    getUsers(state, getters) {
+    getUsers(state: State, getters) {
       return state.users;
     },
     getUserByID: (state) => (id: number | string) => {
       return state.users.find((user) => user.id == id);
     },
-    // getID(state, getters) {
-    //   return function(id: number | string) {
-    //     return state.users.find( (user) => user.id == id);
-    //   };
-    // },
-    getUserPlainProperties: (state, getters)=>(id: number | string) =>{
-      var currentUser = getters.getID(id)
-      if(!currentUser) return 0;
-
-      var userProperties = Object.keys(currentUser)
-      return userProperties.filter(prop => {
-        if (prop =='id')
-          return false
-        if(Array.isArray(currentUser[prop]))
-          return false
-        return true
-      } )
-    },
-
-    getUserArrayProperties : (state, getters) => (id: number | string )=>{
-      var currentUser = getters.getID(id)
-      if(!currentUser) return 0;
-
-      var userProperties = Object.keys(currentUser)
-      return userProperties.filter(prop => Array.isArray(currentUser[prop]) ).map(arrProp=>{
-        var label = arrProp.charAt(0).toUpperCase() + arrProp.slice(1,)
-        label = (label.match(/[A-Z]([a-z]|[0-9])*/g) || ['']).join(' ')
-        return { name:arrProp, label, values: (Object.keys(currentUser[arrProp]))}
-      })
-    },
-
     getSelectedUser(state, getters){
       return getters.getUserByID(state.selectedUserId)
     },
     getSelectedUserId(state){
       return state.selectedUserId
-    }
+    },
   },
   mutations: {
-    setMaxUserId(state, max){
-      state.maxUserId = max
-    },
-    setSeletedUser(state,id){
+    setSeletedUser(state, {id, user}){
       state.selectedUserId = id
+      state.selectedUser = user
     },
     delete(state, id) {
       state.users =  state.users.filter((user) => user.id != id);
-      // var newUserGroup = state.users.filter(user => user.id == id)
-      // state.users = newUserGroup
     },
     post(state, newUserData) {
       const fieldsToModify = Object.keys(newUserData);
@@ -120,13 +109,32 @@ export default new Vuex.Store({
         }
       });
     },
-    add(state, newUser) {
-      newUser.id = ( state.maxUserId =+ 1 )
-      state.users.push(newUser)
+    saveSelectedUser(state){
+      const activeUserIndex = state.users.findIndex((user: User) => user.id == state.selectedUserId)
+      if(activeUserIndex > -1){
+        state.users.splice(activeUserIndex, 1, state.selectedUser)
+      } else {
+        state.users.push(state.selectedUser)
+      }
     },
+    setNewUser(state){
+      state.selectedUser = new User()
+      state.selectedUserId = state.selectedUser.id
+    }
   },
   actions: {
-  },
-  modules: {
+    setSeletedUser({ commit, getters }, id){
+      const user = getters.getUserByID(id)
+      commit('setSeletedUser', { id, user })
+    },
+    resetSelectedUser({ state, getters, dispatch }){
+      const selectedUser = getters.getUserByID(state.selectedUserId)
+
+      if(selectedUser){
+        dispatch('setSeletedUser', selectedUser.id)
+      } else {
+
+      }
+    },
   },
 });
