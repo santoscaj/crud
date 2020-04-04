@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import { v4 } from 'uuid'
 
 Vue.use(Vuex);
 
@@ -9,41 +10,41 @@ export default new Vuex.Store({
     selectedUserId: 0,
     users: [
       {
-        id: 1,
+        id: v4(),
         firstName: 'first',
         lastName: 'user',
         telephones: [
           {
-            id: 0,
+            id: v4(),
             name: 'home',
             details: '001-123-4567',
           },
         ],
       },
       {
-        id: 2,
+        id: v4(),
         firstName: 'second',
         lastName: 'user',
         telephones: [
           {
-            id: 0,
+            id: v4(),
             name: 'home',
             details: '002-123-4567',
           },
         ],
       },
       {
-        id: 3,
+        id: v4(),
         firstName: 'third',
         lastName: 'user',
         telephones: [
           {
-            id: 0,
+            id: v4(),
             name: 'home',
             details: '003-123-4567',
           },
           {
-            id: 2,
+            id: v4(),
             name: 'work',
             details: '003-123-4567',
           },
@@ -52,19 +53,14 @@ export default new Vuex.Store({
     ],
   },
   getters: {
-    get(state, getters) {
+    getUsers(state, getters) {
       return state.users;
     },
-    getID: (state) => (id: number | string) => {
+    getUserByID: (state) => (id: number | string) => {
       return state.users.find((user) => user.id == id);
     },
-    // getID(state, getters) {
-    //   return function(id: number | string) {
-    //     return state.users.find( (user) => user.id == id);
-    //   };
-    // },
     getSelectedUser(state, getters){
-      return getters.getID(state.selectedUserId)
+      return getters.getUserByID(state.selectedUserId)
     },
     getSelectedUserId(state){
       return state.selectedUserId

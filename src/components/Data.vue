@@ -12,14 +12,14 @@
         <div class="columns group">
 
           <div class="row" v-for="prop in getSelectedUserPlainProperties" :key="prop">
-              <div class="label"> {{prop}}  </div>
+              <div class="label"> {{startCase(prop)}}  </div>
               <div class="value"> <input type="text" :value="getSelectedUser[prop]"/> </div>
           </div>
 
           <div class="columns" v-for="prop in getSelectedUserArrayProperties" :key="prop.name">
             <div class="mini-title">{{prop.label}}</div>
             <div v-for="subProp  in getSelectedUser[prop.name]" :key="subProp.name" class="row">
-              <div class="label"> {{subProp.name}} </div>
+              <div class="label"> {{startCase(subProp.name)}} </div>
               <div class="value1"> <input type="text" :value="subProp.details"/> </div>
               <div class="value2" @click="deleteField(prop.name, subProp.name)">x</div>
             </div>
@@ -36,13 +36,14 @@
       </div>
 
     <!-- </div> -->
-  
+
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapGetters }  from 'vuex'
+import { mapGetters } from 'vuex'
+import _startCase from 'lodash/startCase'
 
 export default Vue.extend({
   name: 'HelloWorld',
@@ -60,6 +61,9 @@ export default Vue.extend({
   methods:{
     deleteField(x: number,y:number){
       console.log(x,y)
+    },
+    startCase(label: string){
+      return _startCase(label)
     }
   }
 });

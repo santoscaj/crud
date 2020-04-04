@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <div class="block" v-for="user in get" :key="user.id" @click="setSeletedUser(user.id)">
+    <div class="block" v-for="user in getUsers" :key="user.id" @click="setSeletedUser(user.id)">
       <div class="line">{{user.firstName}} {{user.lastName}}</div>
     </div>
     <div class="block" id="addUser"  @click="setSeletedUser(0)">
@@ -20,8 +20,8 @@ export default Vue.extend({
   },
   computed:{
     ...mapGetters([
-      'get', 
-      'getID'
+      'getUsers',
+      'getUserByID'
     ])
   },
   methods:{
