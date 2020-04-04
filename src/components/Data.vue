@@ -1,22 +1,21 @@
 <template>
   <div class="hello">
     <!-- <div class="display-area"> -->
-      <div class="columns" v-if="getSelectedUserId == 0 ">
+      <!-- <div class="columns" v-if="getSelectedUserId == 0 ">
         new user
-      </div>
+      </div> -->
 
-
-      <div class="columns" v-else>
-        {{getSelectedUser.id}}
+      <div class="columns">
+        <!-- {{getSelectedUser.id}} -->
 
         <div class="columns group">
 
-          <div class="row" v-for="prop in getSelectedUserPlainProperties" :key="prop">
+          <div class="row" v-for="prop in getPlainProperties" :key="prop">
               <div class="label"> {{startCase(prop)}}  </div>
               <div class="value"> <input type="text" :value="getSelectedUser[prop]"/> </div>
           </div>
 
-          <div class="columns" v-for="prop in getSelectedUserArrayProperties" :key="prop.name">
+          <div class="columns" v-for="prop in getArrayProperties" :key="prop.name">
             <div class="mini-title">{{prop.label}}</div>
             <div v-for="subProp  in getSelectedUser[prop.name]" :key="subProp.name" class="row">
               <div class="label"> {{startCase(subProp.name)}} </div>
@@ -53,10 +52,24 @@ export default Vue.extend({
   computed:{
     ...mapGetters([
       'getSelectedUser',
-      'getSelectedUserId',
-      'getSelectedUserPlainProperties',
-      'getSelectedUserArrayProperties'
-    ])
+      'getUserPlainProperties',
+      'getUserArrayProperties'
+    ]),
+    id(){
+      return this.$route.params.id
+    },
+    getSelectedUser(){
+      var id = this.$route.params.id;
+      return this.$store.getters['getID'](id)
+    },
+    getPlainProperties(){
+      var id = this.$route.params.id;
+      return this.$store.getters['getUserPlainProperties'](id)
+    },
+    getArrayProperties(){
+      var id = this.$route.params.id;
+      return this.$store.getters['getUserArrayProperties'](id)
+    }
   },
   methods:{
     deleteField(x: number,y:number){

@@ -59,14 +59,13 @@ export default new Vuex.Store({
     getUserByID: (state) => (id: number | string) => {
       return state.users.find((user) => user.id == id);
     },
-    getSelectedUser(state, getters){
-      return getters.getUserByID(state.selectedUserId)
-    },
-    getSelectedUserId(state){
-      return state.selectedUserId
-    },
-    getSelectedUserPlainProperties(state, getters){
-      var currentUser = getters.getSelectedUser
+    // getID(state, getters) {
+    //   return function(id: number | string) {
+    //     return state.users.find( (user) => user.id == id);
+    //   };
+    // },
+    getUserPlainProperties: (state, getters)=>(id: number | string) =>{
+      var currentUser = getters.getID(id)
       if(!currentUser) return 0;
 
       var userProperties = Object.keys(currentUser)
@@ -78,17 +77,24 @@ export default new Vuex.Store({
         return true
       } )
     },
-    getSelectedUserArrayProperties(state, getters){
-      var currentUser = getters.getSelectedUser
+
+    getUserArrayProperties : (state, getters) => (id: number | string )=>{
+      var currentUser = getters.getID(id)
       if(!currentUser) return 0;
 
       var userProperties = Object.keys(currentUser)
-
       return userProperties.filter(prop => Array.isArray(currentUser[prop]) ).map(arrProp=>{
         var label = arrProp.charAt(0).toUpperCase() + arrProp.slice(1,)
         label = (label.match(/[A-Z]([a-z]|[0-9])*/g) || ['']).join(' ')
         return { name:arrProp, label, values: (Object.keys(currentUser[arrProp]))}
       })
+    },
+
+    getSelectedUser(state, getters){
+      return getters.getUserByID(state.selectedUserId)
+    },
+    getSelectedUserId(state){
+      return state.selectedUserId
     }
   },
   mutations: {
