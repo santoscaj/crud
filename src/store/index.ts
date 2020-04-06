@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Vuex from 'vuex';
+import Vuex, { StoreOptions } from 'vuex';
 import { v4 } from 'uuid'
 
 
@@ -23,14 +23,22 @@ class User{
   // }]
 }
 
-interface State{
-  newPhone: {name: string, number: string}
-  selectedUserId: string
-  selectedUser: User
-  users: User[]
+interface RootState {
+  newPhone: {name: string, number: string};
+  selectedUserId: string;
+  selectedUser: User;
+  users: User[];
 }
 
-export default new Vuex.Store({
+// const store : StoreOptions<RootState> = {
+//   state:{
+//     newPhone:{name:'', number: ''},
+//     selectedUserId: '',
+//     selectedUser : new User(),
+//   }
+// }
+
+export default new Vuex.Store<RootState>({
   state: {
     newPhone:
     {
@@ -84,7 +92,7 @@ export default new Vuex.Store({
     ],
   },
   getters: {
-    getUsers(state: State, getters) {
+    getUsers(state: RootState, getters) {
       return state.users;
     },
     getUserByID: (state) => (id: number | string) => {
@@ -162,6 +170,12 @@ export default new Vuex.Store({
       } else {
         state.users.push(state.selectedUser)
       }
+    },
+    removePhoneNumber(state, id){
+      const phoneIndex = state.selectedUser.telephones.findIndex(usr => usr.id == id)
+      if(phoneIndex>-1)
+        state.selectedUser.telephones.splice(phoneIndex, 1)
+
     },
     // setNewUser(state){
     //   state.selectedUser = new User()

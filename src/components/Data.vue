@@ -36,7 +36,9 @@
   
   <div v-for="telephone in getSelectedUser.telephones" class="row" :key="telephone.id">
     <div class="row"> 
-      <div class="label"></div>
+      <div class="label btn-label">
+        <button @click="removePhoneNumber(telephone.id)">x</button>
+      </div>
       <div class="telephone"> 
         <div class="phone-label">{{telephone.name}}</div>
         <!-- <div class="phone-value">{{telephone.number}}</div> -->
@@ -44,20 +46,24 @@
       </div>
     </div>
   </div>
-  <div class="row"> 
+  <div class="columns new-phone">
+
+    <div class="row"> 
+        <div class="label"></div>
+      <div class="telephone"> 
+        <div class="phone-label"><input type="text" v-model="editPhoneName"></div>
+        <div class="phone-value"><input type="text" v-model="editPhoneNumber"></div>
+      </div>
+    </div>
+    
+    <div class="row"> 
       <div class="label"></div>
-    <div class="telephone"> 
-      <div class="phone-label"><input type="text" v-model="editPhoneName"></div>
-      <div class="phone-value"><input type="text" v-model="editPhoneNumber"></div>
+      <div class="telephone"> 
+        <button class="phone-label" @click="clearNewPhoneData()" >clear</button>
+        <button class="phone-value" @click="addNewPhone()">add</button>
+      </div>
     </div>
-  </div>
-  
-  <div class="row"> 
-    <div class="label"></div>
-    <div class="telephone"> 
-      <button class="phone-label" @click="clearNewPhoneData()" >clear</button>
-      <button class="phone-value" @click="addNewPhone()">add</button>
-    </div>
+
   </div>
 
   <div class="space"></div>
@@ -154,6 +160,7 @@ export default Vue.extend({
           'clearNewPhoneData',
           'updateEditNumber',
           'updateEditName',
+          'removePhoneNumber',
           // 'saveSelectedUser',
           // 'deleteSelectedUser',
           // 'setSelectedUser',
@@ -280,6 +287,11 @@ input{
   display: flex;
 }
 
+.new-phone{
+  margin: 5px 0;
+  border: 1px solid gray;
+}
+
 .mini-title{
   font-size: 10px;
   width: 100%;
@@ -291,6 +303,26 @@ input{
 
 .space{
   flex: 1 1 auto;
+}
+.btn-label{
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-label>*{
+   flex: 0 1 25px;
+   border-radius: 25px;
+   border: 1px solid red;
+   background-color: white;
+   color: red;
+}
+
+.btn-label>*:hover{
+   flex: 0 1 25px;
+   border-radius: 25px;
+   border: 1px solid red;
+   background-color: red;
+   color: white;
 }
 
 .last-row{
