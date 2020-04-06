@@ -136,13 +136,18 @@ export default new Vuex.Store<RootState>({
       let id = state.selectedUserId;
       newPhone.name = state.newPhone.name;
       newPhone.number = state.newPhone.number
-      
+    
+
       // console.log(state.newPhone)
       // let user = state.users.find(user=>user.id==id) || null;
 
       // // Caleb why is this necessary? I tried with another method and didnt work
-      state.newPhone.name = ''
-      state.newPhone.number = ''
+      // state.newPhone.name = ''
+      state.newPhone = {
+        name:  '',
+        number:  '',
+      }
+      // state.newPhone.number = ''
 
       // if(user)
       //   user.telephones.push(newPhone)
@@ -150,6 +155,10 @@ export default new Vuex.Store<RootState>({
     },
     updateEditName(state, data){
       state.newPhone.name = data
+      state.newPhone = {
+        ...state.newPhone,
+        name: data,
+      }
     },
     updateEditNumber(state, data){
       state.newPhone.number= data
@@ -170,6 +179,19 @@ export default new Vuex.Store<RootState>({
       } else {
         state.users.push(state.selectedUser)
       }
+      state.selectedUserId = state.selectedUser.id
+
+      let newUser = new User()
+      newUser.firstName = state.selectedUser.firstName
+      newUser.lastName = state.selectedUser.lastName
+      state.selectedUser.telephones.forEach(t=>{
+        let newTelephone = new Telephone()
+        newTelephone.name = t.name
+        newTelephone.number = t.number
+
+        newUser.telephones.push(newTelephone)
+      })
+
     },
     removePhoneNumber(state, id){
       const phoneIndex = state.selectedUser.telephones.findIndex(usr => usr.id == id)
@@ -204,9 +226,10 @@ export default new Vuex.Store<RootState>({
           newTelephone.number = t.number
 
           newUser.telephones.push(newTelephone)
-
-          commit('setSelectedUser', { id, user:newUser })
         })
+
+        commit('setSelectedUser', { id, user:newUser })
+
 
       }
     },

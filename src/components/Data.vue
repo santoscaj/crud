@@ -34,18 +34,23 @@
     <div class="label"> {{labels.telephones}}  </div>
   </div>
   
-  <div v-for="telephone in getSelectedUser.telephones" class="row" :key="telephone.id">
-    <div class="row"> 
-      <div class="label btn-label">
-        <button @click="removePhoneNumber(telephone.id)">x</button>
-      </div>
-      <div class="telephone"> 
-        <div class="phone-label">{{telephone.name}}</div>
-        <!-- <div class="phone-value">{{telephone.number}}</div> -->
-        <input type="text" v-model="telephone.number">
+  <template :if="getSelectedUser.telephones.length > 0">
+    <div v-for="telephone in getSelectedUser.telephones" class="row" :key="telephone.id">
+      <div class="row"> 
+        <div class="label btn-label">
+          <button @click="removePhoneNumber(telephone.id)">x</button>
+        </div>
+        <div class="telephone"> 
+          <div class="phone-label">{{telephone.name}}</div>
+          <!-- <div class="phone-value">{{telephone.number}}</div> -->
+          <input type="text" v-model="telephone.number">
+        </div>
       </div>
     </div>
-  </div>
+  </template>
+
+
+
   <div class="columns new-phone">
 
     <div class="row"> 
@@ -173,9 +178,9 @@ export default Vue.extend({
     },
     addPhone(){
       
-      // this.$store.dispatch('addNewPhone');
+      this.$store.dispatch('addNewPhone');
       //Caleb why this does not work?
-      // this.$store.commit('clearNewPhoneData');
+      this.$store.commit('clearNewPhoneData');
       
       // nor this... 
       // this.$store.state.newPhone.name = ''
@@ -328,6 +333,62 @@ input{
 .last-row{
   flex: 0 0 30px;
   display:flex;
+}
+
+.new-phone{
+  border: 1px solid lightseagreen;
+  border-radius: 3px;
+  background: lightgreen;
+}
+
+input{
+  border: none;
+  /* border-top-style: none;
+  border-bottom-style: none;
+  border-left-style: none;
+  border-right-style: none; */
+  outline: none;
+  box-shadow: none;
+  background: white;
+  /* border: 1px solid gray; */
+}
+
+.telephone{
+  padding: 2px;
+}
+
+.telephone div{
+  border: none;
+  box-shadow: none;
+  margin: 0px 3px;
+  line-height: 20px;
+}
+.telephone input{
+  /* border: 1px solid gray; */
+  box-shadow: none;
+  padding: 0;
+}
+
+.telephone>*{
+  flex: 1 1 200px;
+}
+
+.new-phone button{
+  border: 1px solid green;
+  color: green;
+  background: white;
+  border-radius: 4px;
+  margin: 3px;
+  padding: 2px 4px;
+  line-height: 10px;
+}
+
+.new-phone button:hover,button:focus{
+  border: 1px solid green;
+  color: white;
+  background: green;
+  border-radius: 4px;
+  margin: 3px;
 }
 
 </style>

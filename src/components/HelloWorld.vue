@@ -2,6 +2,7 @@
   <div class="hello">
       <Sidebar class="left"/>
       <Data class="right" />
+      <div class="space" ></div>
   </div>
 </template>
 
@@ -26,6 +27,18 @@ export default Vue.extend({
 <style scoped>
 .left{
   flex: 0 0 200px;  
+  padding: 5px 2px;
+  height: 100%;
+}
+
+.right{
+  flex: 0 1 700px;  
+  padding: 10px;
+  overflow-y: scroll;
+}
+
+.space{
+  flex: 1 1 400px;
 }
 
 .hello{
