@@ -4,8 +4,8 @@
     <div class="block" v-for="user in getUsers" :key="user.id">
       <router-link :to="'/user/'+user.id">{{user.firstName}} {{user.lastName}}</router-link>
     </div>
-    <div class="block" id="addUser"  @click="setSeletedUser(0)">
-      +
+    <div class="block" id="addUser">
+      <router-link to='/user/new'> + </router-link>
     </div>
   </div>
 </template>
@@ -15,7 +15,7 @@ import Vue from 'vue';
 import { mapGetters, mapMutations } from 'vuex';
 
 export default Vue.extend({
-  name: 'HelloWorld',
+  name: 'Sidebar',
   props: {
     msg: String,
   },
@@ -27,7 +27,8 @@ export default Vue.extend({
   },
   watch: {
     '$route.params.id'(newValue, oldValue) {
-      console.log(newValue);
+    this.$store.dispatch('setSelectedUser',newValue)
+    this.$store.commit('clearNewPhoneData')
     },
   },
   methods: {
@@ -57,12 +58,26 @@ li {
 }
 a {
   color: #42b983;
+  width: 100%;
+  display: inline-block;
 }
+a:hover {
+  color: white;
+  padding: 0;
+  margin: 0;
+  background-color: #42b983;
+  width: 100%;
+  display: inline-block;
+}
+
 .hello{
   display: flex;
   flex-direction: column;
   width: 100%;
 
+}
+.router-link{
+  color: red;
 }
 
 .block{
