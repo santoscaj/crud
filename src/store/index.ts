@@ -131,6 +131,10 @@ export default new Vuex.Store<RootState>({
       state.newPhone.name = ''
       state.newPhone.number = ''
     },
+    addEmptyPhone(state){
+      let newPhone = new Telephone()
+      state.selectedUser.telephones.push(newPhone)
+    },
     addNewPhone(state){
       let newPhone = new Telephone()
       let id = state.selectedUserId;

@@ -3,29 +3,15 @@
   Error 404 page not found. LOL
 </div>
 <div v-else class="columns">
-  <!-- <template v-for="property in Object.keys(getSelectedUser).filter(key => key !== 'id')">
-      <div class="row" :key="getSelectedUser.id + property">
-        <div class="label"> {{ property }} </div>
-        <div class="values" v-if="Array.isArray(getSelectedUser[property])">
-          <div class="value" v-for="secondProperty in Object.keys(getSelectedUser[property])" :key="getSelectedUser.id + property + secondProperty">
 
-          </div>
-        </div>
-        <div v-else class="value">
-          <input type="text" :value="getSelectedUser[property]"/>
-        </div>
-      </div>
-  </template> -->
   <div class="row">
     <div class="label"> {{labels.firstName}}  </div>
-    <!-- <div class="value"> {{getSelectedUser.firstName}} </div> -->
-    <div class="phone-value"><input type="text" v-model="getSelectedUser.firstName"></div>
+    <div class="phone-value"><input class="error-message" type="text" v-model="getSelectedUser.firstName"></div>
 
   </div>
 
   <div class="row">
     <div class="label"> {{labels.lastName}}  </div>
-    <!-- <div class="value"> {{getSelectedUser.lastName}} </div> -->
     <div class="phone-value"><input type="text" v-model="getSelectedUser.lastName"></div>
 
   </div>
@@ -38,20 +24,41 @@
     <div v-for="telephone in getSelectedUser.telephones" class="row" :key="telephone.id">
       <div class="row"> 
         <div class="label btn-label">
-          <button @click="removePhoneNumber(telephone.id)">x</button>
+          <button class="small-btn red-btn" @click="removePhoneNumber(telephone.id)">x</button>
         </div>
         <div class="telephone"> 
           <div class="phone-label">{{telephone.name}}</div>
-          <!-- <div class="phone-value">{{telephone.number}}</div> -->
           <input type="text" v-model="telephone.number">
         </div>
       </div>
     </div>
   </template>
 
+  <!-- <template :if="getSelectedUser.telephones.length > 0">
+    <div v-for="telephone in getSelectedUser.telephones" class="row" :key="telephone.id">
+      <div class="row"> 
+        <div class="label btn-label">
+          <button class="small-btn red-btn" @click="removePhoneNumber(telephone.id)">x</button>
+        </div>
+        <div class="telephone"> 
+          <div class="phone-label">{{telephone.name}}</div>
+          <input type="text" v-model="telephone.number">
+        </div>
+      </div>
+    </div>
+  </template> -->
+
+  <div class="row">
+        <div class="row"> 
+          <div class="label btn-label">
+            <button @click="addPhoneField()" class="small-btn green-btn">+</button>
+          </div>
+          <!-- <div class="telephone">   <div> home</div> <input type="text"></div> -->
+        </div>
+  </div>
 
 
-  <div class="columns new-phone">
+  <!-- <div class="columns new-phone">
 
     <div class="row"> 
         <div class="label"></div>
@@ -69,7 +76,7 @@
       </div>
     </div>
 
-  </div>
+  </div> -->
 
   <div class="space"></div>
 
@@ -97,10 +104,7 @@ export default Vue.extend({
         lastName: 'Last Name',
         telephones: 'Telephones'
       },
-      // newPhone:{
-      //   name: '',
-      //   value: ''
-      // }
+
     }
   },
   props: {
@@ -117,8 +121,6 @@ export default Vue.extend({
         return this.$store.state.newPhone.name
       },
       set(value){
-        // this.$store.commit('updateEditName',value)
-        // this should have worked, no Caleb?
         this.$store.state.newPhone.name = value
       }
     },
@@ -127,33 +129,12 @@ export default Vue.extend({
         return this.$store.state.newPhone.number
       },
       set(value){
-        // this.$store.commit('updateEditNumber',value)
         this.$store.state.newPhone.number = value
       }
     },
-    // newPhone: {
-    //   get(){
-    //     return {name: this.$store.state.newPhone.name, number: this.$store.state.newPhone.number}
-    //   },
-    //   set(data : {name:string, number: string}){
-    //     this.$store.state.newPhone.name = "1"
-    //     this.$store.state.newPhone.number = '2'
-    //   }
-    // },
     id() {
       return this.$route.params.id;
     },
-    // getSelectedUser() {
-    //   let id = this.$route.params.id;
-    //   return this.$store.getters.getUserByID(id);
-    // },
-    // getPlainProperties() {
-    //   let id = this.$route.params.id;
-    //   return this.$store.getters.getUserPlainProperties(id);
-    // },
-    // getArrayProperties() {
-    //   return this.$store.getters.getUserArrayProperties(id);
-    // },
     errorpage(){
       let id = this.$route.params.id;
       return (!this.checkIfIDExists(id)) && (id!=='new')
@@ -170,21 +151,13 @@ export default Vue.extend({
           // 'deleteSelectedUser',
           // 'setSelectedUser',
           ]),
-    // deleteField(x: number, y: number) {
-    //   console.log(x, y);
-    // },
     startCase(label: string) {
       return _startCase(label);
     },
     addPhone(){
       
       this.$store.dispatch('addNewPhone');
-      //Caleb why this does not work?
       this.$store.commit('clearNewPhoneData');
-      
-      // nor this... 
-      // this.$store.state.newPhone.name = ''
-      // this.$store.state.newPhone.number = ''
     },
     saveSelectedUser(){
       let id = this.$store.getters['getSelectedUser']['id']
@@ -194,6 +167,9 @@ export default Vue.extend({
     deleteSelectedUser(){
       if(confirm('Do you really want to delete it?'))
         this.$store.commit('deleteSelectedUser')
+    },
+    addPhoneField(){
+      this.$store.commit('addEmptyPhone')
     }
   },
 });
@@ -259,12 +235,12 @@ input{
 }
 
 .label,.phone-label{
-  flex: 0 1 40%;
+  flex: 0 0 40%;
   height: auto;
   margin:0;
 }
 .value,.phone-value{
-  flex: 1 1 60%;
+  flex: 0 0 60%;
   background: white;
   border: none;
   height: auto;
@@ -274,20 +250,6 @@ input{
 .phone-value{
   padding:0;
 }
-
-/* .value1{
-  flex: 1 1 50%;
-  background: white;
-  border: 1px solid black;
-  height: auto;
-}
-
-.value2{
-  flex: 1 1 10%;
-  background: white;
-  border: 1px solid black;
-  height: auto;
-} */
 
 .telephone{
   display: flex;
@@ -315,19 +277,35 @@ input{
   justify-content: flex-end;
 }
 
-.btn-label>*{
-   flex: 0 1 25px;
-   border-radius: 25px;
-   border: 1px solid red;
-   background-color: white;
-   color: red;
+.small-btn{
+  flex: 0 1 25px;
+  border-radius: 25px;
+  line-height: 100%;
+  height: 25px;
+  font-weight: 500;
 }
 
-.btn-label>*:hover{
-   flex: 0 1 25px;
-   border-radius: 25px;
+.red-btn{
+  border: 1px solid red;
+  background-color: white;
+  color: red;
+}
+
+.red-btn:hover{
    border: 1px solid red;
    background-color: red;
+   color: white;
+}
+
+.green-btn{
+  border: 1px solid green;
+  background-color: white;
+  color: green;
+}
+
+.green-btn:hover{
+   border: 1px solid green;
+   background-color: green;
    color: white;
 }
 
@@ -344,16 +322,13 @@ input{
 
 input{
   border: none;
-  /* border-top-style: none;
-  border-bottom-style: none;
-  border-left-style: none;
-  border-right-style: none; */
   outline: none;
   box-shadow: none;
   background: white;
   border: 1px solid lightgray;
   border-radius: 3px;;
   padding: 0 5px;
+  height: 95%
 }
 
 input:hover{
@@ -366,6 +341,7 @@ input:focus{
 
 .telephone{
   padding: 2px;
+  flex: 0 0 60%
 }
 
 .telephone div{
@@ -374,11 +350,6 @@ input:focus{
   margin: 0px 3px;
   line-height: 20px;
 }
-/* .telephone input{
-  border: 1px solid gray;
-  box-shadow: none;
-  padding: 0;
-} */
 
 .telephone>*{
   flex: 1 1 200px;
@@ -401,6 +372,25 @@ input:focus{
   border-radius: 4px;
   margin: 3px;
 }
+
+.error-message{
+  border:1px solid salmon !important;
+  /* height: 95% */
+}
+
+/* .error-message::after{
+  content: "There is an error with this field";
+  font-size: 8px;
+  color: salmon;
+  border:1px solid salmon;
+  position: absolute;
+  width: 100%;
+  flex-basis: 100%;
+
+
+  top: 0;
+  z-index: -1;
+} */
 
 </style>
 
