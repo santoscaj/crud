@@ -2,7 +2,7 @@
   <div class="hello">
 
     <div class="block" v-for="user in getUsers" :key="user.id">
-      <router-link :to="'/user/'+user.id">{{user.firstName}} {{user.lastName}}</router-link>
+      <router-link :to="'/user/'+user.id">{{user.firstName.toUpperCase()}} {{user.lastName.toUpperCase()}}</router-link>
     </div>
     <div class="block" id="addUser">
       <router-link to='/user/new'> + </router-link>
@@ -60,6 +60,7 @@ a {
   color: #42b983;
   width: 100%;
   display: inline-block;
+  text-decoration: none;
 }
 a:hover {
   color: white;

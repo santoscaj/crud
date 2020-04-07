@@ -9,13 +9,14 @@ export default new Router({
     mode: 'hash',
     routes: [
         {
-        path: '/home/',
-        name: 'home',
-        component: Data,
+            path: '/home/',
+            name: 'home',
+            redirect: { name: 'user' },
+            component: Data,
         },
         {
         path: '/user/:id',
-        name: 'home/user',
+        name: 'user',
         component: Data,
         },
     ],

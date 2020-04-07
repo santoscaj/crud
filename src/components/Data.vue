@@ -74,9 +74,9 @@
   <div class="space"></div>
 
   <div class="last-row">
-    <button @click="deleteSelectedUser()" class="button">delete</button>
-    <button @click="setSelectedUser(id)" class="button">reset</button>
-    <button @click="saveSelectedUser()" class="button">save</button>
+    <button @click="deleteSelectedUser()" class="submit-btn">DELETE</button>
+    <button @click="setSelectedUser(id)" class="submit-btn">RESET</button>
+    <button @click="saveSelectedUser()" class="submit-btn">SAVE</button>
   </div>
 
 
@@ -95,7 +95,7 @@ export default Vue.extend({
       labels: {
         firstName:'First Name',
         lastName: 'Last Name',
-        telephones: 'Contact Info'
+        telephones: 'Telephones'
       },
       // newPhone:{
       //   name: '',
@@ -217,6 +217,7 @@ li {
 }
 a {
   color: #42b983;
+  text-decoration: none;
 }
 
 input{
@@ -265,7 +266,7 @@ input{
 .value,.phone-value{
   flex: 1 1 60%;
   background: white;
-  border: 1px solid black;
+  border: none;
   height: auto;
   margin: 0;
 }
@@ -350,7 +351,17 @@ input{
   outline: none;
   box-shadow: none;
   background: white;
-  /* border: 1px solid gray; */
+  border: 1px solid lightgray;
+  border-radius: 3px;;
+  padding: 0 5px;
+}
+
+input:hover{
+  border: 1px solid gray;
+}
+
+input:focus{
+  border: 1px solid #42b983;
 }
 
 .telephone{
@@ -363,27 +374,27 @@ input{
   margin: 0px 3px;
   line-height: 20px;
 }
-.telephone input{
-  /* border: 1px solid gray; */
+/* .telephone input{
+  border: 1px solid gray;
   box-shadow: none;
   padding: 0;
-}
+} */
 
 .telephone>*{
   flex: 1 1 200px;
 }
 
-.new-phone button{
+.submit-btn, .submit-btn:focus{
   border: 1px solid green;
   color: green;
-  background: white;
+  background-color: white;
   border-radius: 4px;
   margin: 3px;
   padding: 2px 4px;
   line-height: 10px;
 }
 
-.new-phone button:hover,button:focus{
+.submit-btn:hover{
   border: 1px solid green;
   color: white;
   background: green;

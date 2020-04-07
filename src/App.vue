@@ -28,8 +28,14 @@ html,body, *{
   height:100%;
 }
 
+button{
+  font-family: 'Advent Pro', sans-serif;
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Comic Neue', cursive;
+  font-family: 'Major Mono Display', monospace;
+  font-family: 'Advent Pro', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
