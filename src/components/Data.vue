@@ -4,7 +4,8 @@
 </div>
 <div v-else class="columns">
 
-  <div class="row">
+<!-- All this -->
+  <!-- <div class="row">
     <div class="label"> {{labels.firstName}}  </div>
     <div class="phone-value"><input class="error-message" type="text" v-model="getSelectedUser.firstName"></div>
 
@@ -32,7 +33,12 @@
         </div>
       </div>
     </div>
-  </template>
+  </template> -->
+
+  <Input
+    label="label"
+    value="hello"
+   />
 
   <!-- <template :if="getSelectedUser.telephones.length > 0">
     <div v-for="telephone in getSelectedUser.telephones" class="row" :key="telephone.id">
@@ -48,14 +54,16 @@
     </div>
   </template> -->
 
-  <div class="row">
+<!-- and this -->
+  <!-- <div class="row">
         <div class="row"> 
           <div class="label btn-label">
             <button @click="addPhoneField()" class="small-btn green-btn">+</button>
           </div>
-          <!-- <div class="telephone">   <div> home</div> <input type="text"></div> -->
+          delete below
+          <div class="telephone">   <div> home</div> <input type="text"></div>
         </div>
-  </div>
+  </div> -->
 
 
   <!-- <div class="columns new-phone">
@@ -93,6 +101,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
+// import Input from '@/components/Input.vue';
 import _startCase from 'lodash/startCase';
 
 export default Vue.extend({
