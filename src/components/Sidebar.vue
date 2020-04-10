@@ -1,5 +1,14 @@
 <template>
   <div class="hello">
+    
+    <!-- With the transition -->
+    <!-- <transition-group class="hello child" name="fade">
+      <div :class="{'block': true, 'active': user.id===getSelectedUserId}" v-for="user in getUsers" :key="user.id">
+        <router-link :to="'/user/'+user.id">{{user.firstName}} {{user.lastName}}</router-link>
+      </div>
+    </transition-group > -->
+
+    <!-- No transition -->
     <div :class="{'block': true, 'active': user.id===getSelectedUserId}" v-for="user in getUsers" :key="user.id">
       <router-link :to="'/user/'+user.id">{{user.firstName}} {{user.lastName}}</router-link>
     </div>
@@ -7,6 +16,7 @@
     <div :class="{'block': true, 'active': 'new'===getSelectedUserId}" id="addUser">
       <router-link to='/user/new'> + </router-link>
     </div>
+
   </div>
 </template>
 
@@ -86,6 +96,10 @@ a {
   width: 100%;
 
 }
+.child{
+  height: auto;
+}
+
 .router-link{
   color: red;
 }
@@ -133,8 +147,13 @@ a {
   color: blue;
 }
 
-.slide-fade-enter-active {
-  transition: all .3s ease;
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 2.5s
 }
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0
+}
+
+
 
 </style>

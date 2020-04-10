@@ -58,6 +58,18 @@ li {
   display: inline-block;
   margin: 0 10px;
 }
+
+@media (max-width:800px){
+  .space{
+    max-width: 50px;
+  }
+}
+
+@media (max-width:700px){
+  .space{
+    display: none;
+  }
+}
 /* a {
   color: #42b983;
   text-decoration: none;
