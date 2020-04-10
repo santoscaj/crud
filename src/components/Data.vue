@@ -4,87 +4,44 @@
 </div>
 <div v-else class="columns">
 
-<!-- All this -->
-  <!-- <div class="row">
-    <div class="label"> {{labels.firstName}}  </div>
-    <div class="phone-value"><input class="error-message" type="text" v-model="getSelectedUser.firstName"></div>
+  <DualInput :error_on_value="Boolean(!getSelectedUser.firstName)" error_message_value="Value cannot be empty" :label="labels.firstName" v-model="getSelectedUser.firstName" />
+  <DualInput :label="labels.lastName"  v-model="getSelectedUser.lastName" />
+  <DualInput :label="labels.telephones" :value_is_editable="false"  />
 
-  </div>
-
-  <div class="row">
-    <div class="label"> {{labels.lastName}}  </div>
-    <div class="phone-value"><input type="text" v-model="getSelectedUser.lastName"></div>
-
-  </div>
-
-  <div class="row">
-    <div class="label"> {{labels.telephones}}  </div>
-  </div>
-  
   <template :if="getSelectedUser.telephones.length > 0">
-    <div v-for="telephone in getSelectedUser.telephones" class="row" :key="telephone.id">
-      <div class="row"> 
+     <div v-for="telephone in getSelectedUser.telephones" class="row" :key="telephone.id">
         <div class="label btn-label">
-          <button class="small-btn red-btn" @click="removePhoneNumber(telephone.id)">x</button>
+          <button class="small-btn red-btn" @click="removePhoneNumber(telephone.id)">
+            <!-- <i class="fas fa-trash-alt"></i> -->
+            <i class="fas fa-times"></i>
+          </button>
+          <!-- <button class="small-btn orange-btn" @click="removePhoneNumber(telephone.id)">
+            <i class="fas fa-pen"></i>
+            <i class="fas fa-minus"></i>
+          </button> -->
         </div>
-        <div class="telephone"> 
-          <div class="phone-label">{{telephone.name}}</div>
-          <input type="text" v-model="telephone.number">
-        </div>
+        <DualInput :label_is_editable="true" :label="telephone.name"  v-model="telephone.number" @labelChanged="value => telephone.name = value" />
       </div>
-    </div>
-  </template> -->
+  </template>
 
-  <Input
-    label="label"
-    value="hello"
-   />
-
-  <!-- <template :if="getSelectedUser.telephones.length > 0">
-    <div v-for="telephone in getSelectedUser.telephones" class="row" :key="telephone.id">
-      <div class="row"> 
+  <template :if="getSelectedUser.additionalNumbers.length > 0">
+     <div v-for="telephone in getSelectedUser.additionalNumbers" class="row" :key="telephone.id">
         <div class="label btn-label">
-          <button class="small-btn red-btn" @click="removePhoneNumber(telephone.id)">x</button>
+          <button class="small-btn red-btn" @click="removePhoneNumber(telephone.id)">
+          </button>
         </div>
-        <div class="telephone"> 
-          <div class="phone-label">{{telephone.name}}</div>
-          <input type="text" v-model="telephone.number">
-        </div>
+        <DualInput :label_is_editable="true" :label="telephone.name"  v-model="telephone.number" />
       </div>
+  </template>
+
+  <div class="row"> 
+    <div class="label btn-label">
+      <button @click="addPhoneField()" class="small-btn green-btn">
+        <i class="fas fa-plus"></i>
+      </button>
     </div>
-  </template> -->
-
-<!-- and this -->
-  <!-- <div class="row">
-        <div class="row"> 
-          <div class="label btn-label">
-            <button @click="addPhoneField()" class="small-btn green-btn">+</button>
-          </div>
-          delete below
-          <div class="telephone">   <div> home</div> <input type="text"></div>
-        </div>
-  </div> -->
-
-
-  <!-- <div class="columns new-phone">
-
-    <div class="row"> 
-        <div class="label"></div>
-      <div class="telephone"> 
-        <div class="phone-label"><input type="text" v-model="editPhoneName"></div>
-        <div class="phone-value"><input type="text" v-model="editPhoneNumber"></div>
-      </div>
-    </div>
-    
-    <div class="row"> 
-      <div class="label"></div>
-      <div class="telephone"> 
-        <button class="phone-label" @click="clearNewPhoneData()" >clear</button>
-        <button class="phone-value" @click="addNewPhone()">add</button>
-      </div>
-    </div>
-
-  </div> -->
+    <DualInput :label_is_editable="false" :value_is_editable="false"/>
+  </div>
 
   <div class="space"></div>
 
@@ -101,7 +58,7 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
-// import Input from '@/components/Input.vue';
+import DualInput from '@/components/Input.vue';
 import _startCase from 'lodash/startCase';
 
 export default Vue.extend({
@@ -116,6 +73,7 @@ export default Vue.extend({
 
     }
   },
+  components: {DualInput},
   props: {
     msg: String,
   },
@@ -286,12 +244,19 @@ input{
   justify-content: flex-end;
 }
 
+i{
+  font-size: 8px;
+  padding: 3px;
+  line-height: 16px;
+}
+
 .small-btn{
   flex: 0 1 25px;
   border-radius: 25px;
   line-height: 100%;
   height: 25px;
   font-weight: 500;
+  margin: 3px;
 }
 
 .red-btn{
@@ -315,6 +280,18 @@ input{
 .green-btn:hover{
    border: 1px solid green;
    background-color: green;
+   color: white;
+}
+
+.orange-btn{
+  border: 1px solid orange;
+  background-color: white;
+  color: orange;
+}
+
+.orange-btn:hover{
+   border: 1px solid orange;
+   background-color: orange;
    color: white;
 }
 
@@ -386,6 +363,7 @@ input:focus{
   border:1px solid salmon !important;
   /* height: 95% */
 }
+
 
 /* .error-message::after{
   content: "There is an error with this field";

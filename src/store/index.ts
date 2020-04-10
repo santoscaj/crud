@@ -51,7 +51,7 @@ export default new Vuex.Store<RootState>({
       {
         id: v4(),
         firstName: 'first',
-        lastName: 'user',
+        lastName: 'last name',
         telephones: [
           {
             id: v4(),
@@ -63,7 +63,7 @@ export default new Vuex.Store<RootState>({
       {
         id: v4(),
         firstName: 'second',
-        lastName: 'user',
+        lastName: 'another last name',
         telephones: [
           {
             id: v4(),
@@ -75,7 +75,7 @@ export default new Vuex.Store<RootState>({
       {
         id: v4(),
         firstName: 'third',
-        lastName: 'user',
+        lastName: 'yet another last name',
         telephones: [
           {
             id: v4(),

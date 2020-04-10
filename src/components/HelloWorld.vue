@@ -27,14 +27,14 @@ export default Vue.extend({
 <style scoped>
 .left{
   flex: 0 0 200px;  
-  padding: 5px 2px;
+  padding: 5px 0px;
   height: 100%;
 }
 
 .right{
   flex: 0 1 700px;  
-  padding: 10px;
-  overflow-y: scroll;
+  padding: 50px 10px;
+  overflow-y: auto;
 }
 
 .space{

@@ -1,10 +1,10 @@
 <template>
   <div class="hello">
 
-    <div class="block" v-for="user in getUsers" :key="user.id">
-      <router-link :to="'/user/'+user.id">{{user.firstName.toUpperCase()}} {{user.lastName.toUpperCase()}}</router-link>
+    <div :class="{'block': true, 'active': user.id===getSelectedUserId}" v-for="user in getUsers" :key="user.id">
+      <router-link :to="'/user/'+user.id">{{user.firstName}} {{user.lastName}}</router-link>
     </div>
-    <div class="block" id="addUser">
+    <div :class="{'block': true, 'active': 'new'===getSelectedUserId}" id="addUser">
       <router-link to='/user/new'> + </router-link>
     </div>
   </div>
@@ -23,6 +23,7 @@ export default Vue.extend({
     ...mapGetters([
       'getUsers',
       'getUserByID',
+      'getSelectedUserId',
     ]),
   },
   watch: {
@@ -42,7 +43,10 @@ export default Vue.extend({
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 html,*{
-  background: #42b983;
+  box-sizing: border-box;
+  /* background: #42b983; */
+  background: #00A5E8;
+  background: gray;
 }
 
 h3 {
@@ -57,23 +61,28 @@ li {
   margin: 0 10px;
 }
 a {
+  padding: 10px;
   color: #42b983;
   width: 100%;
+  height: 100%;
   display: inline-block;
   text-decoration: none;
+  color: black;
 }
-a:hover {
+
+/* a:hover {
   color: white;
   padding: 0;
   margin: 0;
   background-color: #42b983;
   width: 100%;
   display: inline-block;
-}
+} */
 
 .hello{
   display: flex;
   flex-direction: column;
+  justify-content: center;
   width: 100%;
 
 }
@@ -82,14 +91,28 @@ a:hover {
 }
 
 .block{
-  border: 1px solid black;
-  padding: 2px 2px 2px 8px;
-  width: 90%;
+  border: 2px solid rgb(255,255,255,0);
+  /* padding: 10px; */
+  font-size: 14px;
+  /* width: 90%; */
   height: auto;
-  margin: 1% 5%;
-  background: white;
+  /* margin: 1% 5%; */
   text-align: left;
-  border-radius: 3px;
+  background-color: darkgreen;
+  background: #74B2DF;
+  /* background: blue;
+  color: white; */
+  /* border-radius: 3px; */
+}
+
+.block:hover{
+  cursor: pointer;
+  border: 2px solid #74B2DF;
+  color: white;
+  color: #74B2DF;
+  background-color: white;
+  /* background-color: #00A5E8; */
+  /* background-color: white; */
 }
 
 .block>*{
@@ -100,12 +123,14 @@ a:hover {
   text-align: center;
 }
 
-.block:hover{
-  cursor: pointer;
-}
 
 .line{
   height: auto;
+}
+
+.active{
+  background: white;
+  color: blue;
 }
 
 </style>
