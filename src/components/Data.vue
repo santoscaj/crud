@@ -4,9 +4,9 @@
 </div>
 <div v-else class="columns">
 
-  <DualInput :error="validations('firstName', getSelectedUser.firstName)" :label="labels.firstName" v-model="getSelectedUser.firstName" />
-  <DualInput :error="validations('lastName', getSelectedUser.lastName)" :label="labels.lastName"  v-model="getSelectedUser.lastName" />
-  <DualInput :label="labels.telephones" :value_is_editable="false"  />
+  <DualInput :error="nameFieldValidation('', getSelectedUser.firstName)" :label="labels.firstName" v-model="getSelectedUser.firstName" />
+  <DualInput :error="nameFieldValidation('',getSelectedUser.lastName)" :label="labels.lastName"  v-model="getSelectedUser.lastName" />
+  <DualInput :label="labels.telephones" :editValue="false"  />
 
   <template :if="getSelectedUser.telephones.length > 0">
      <div v-for="telephone in getSelectedUser.telephones" class="row" :key="telephone.id">
@@ -15,19 +15,9 @@
             <i class="fas fa-times"></i>
           </button>
         </div>
-        <DualInput :label_is_editable="true" :label="telephone.name"  v-model="telephone.number" @labelChanged="value => telephone.name = value" />
+        <DualInput :error="telephoneValidation(telephone.name, telephone.number)" :editLabel="true" :label="telephone.name"  v-model="telephone.number" @labelChanged="value => telephone.name = value" />
       </div>
   </template>
-
-  <!-- <template :if="getSelectedUser.additionalNumbers.length > 0">
-     <div v-for="telephone in getSelectedUser.additionalNumbers" class="row" :key="telephone.id">
-        <div class="label btn-label">
-          <button class="small-btn red-btn" @click="removePhoneNumber(telephone.id)">
-          </button>
-        </div>
-        <DualInput :label_is_editable="true" :label="telephone.name"  v-model="telephone.number" />
-      </div>
-  </template> -->
 
   <div class="row"> 
     <div class="label btn-label">
@@ -35,7 +25,7 @@
         <i class="fas fa-plus"></i>
       </button>
     </div>
-    <DualInput :label_is_editable="false" :value_is_editable="false"/>
+    <DualInput :editLabel="false" :editValue="false"/>
   </div>
 
   <div class="space"></div>
@@ -53,9 +43,10 @@
 <script lang="ts">
 import Vue from 'vue';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
+import { Telephone } from '@/store'
 import DualInput from '@/components/Input.vue';
 import _startCase from 'lodash/startCase';
-import { required, extract } from '../utils';
+import { required, extract, numericOnly } from '../utils';
 
 
 export default Vue.extend({
@@ -80,6 +71,21 @@ export default Vue.extend({
       'getSelectedUser',
       'checkIfIDExists'
     ]),
+    nameFieldValidation:()=>( labelContent: string, valueContent: string)  : {label: {show: boolean, message: string}, value: {show: boolean, message: string} } => ({
+      label: extract([required(labelContent)]),
+      value: extract([required(valueContent)])
+    }),
+    telephoneValidation(){
+      return function(labelContent: string, valueContent: any){
+        return {
+          label: extract([required(labelContent)]),
+          value: extract([
+            required(valueContent),
+            numericOnly(valueContent)
+            ]),
+        }
+      }
+    },
     validations(){
       return (field: string, value: any) => (({
         firstName: extract([
@@ -121,6 +127,27 @@ export default Vue.extend({
       let id = this.$route.params.id;
       return (!this.checkIfIDExists(id)) && (id!=='new')
     },
+    nameAndLastnameErrors(){
+      let valueOnlyArray = [this.getSelectedUser.firstName, this.getSelectedUser.lastName]
+      
+      let error = !valueOnlyArray.every(value =>{
+        return !extract([required(value)])['show']
+      })
+
+      return error;
+    },
+    telephoneErrors(){
+      let labelAndValueArray : string[][] = []
+      this.getSelectedUser.telephones.forEach((phone: Telephone) => labelAndValueArray.push([phone.name, phone.number]) )
+
+      let error = !labelAndValueArray.every(value =>{
+        let emptyFieldError = value.every(( x: string )=> !extract([required(x)])['show']  )
+        let numericError =  !extract([numericOnly(value[1])])['show']
+        return emptyFieldError && numericError
+      })
+
+      return error
+    }
   },
   methods: {
     ...mapActions(['setSelectedUser']),
@@ -142,17 +169,25 @@ export default Vue.extend({
       this.$store.commit('clearNewPhoneData');
     },
     saveSelectedUser(){
-      let id = this.$store.getters['getSelectedUser']['id']
-      this.$store.commit('saveSelectedUser')
-      this.$router.push({path: `/user/${id}`})
+      if(this.nameAndLastnameErrors || this.telephoneErrors)
+        console.log('there are errors cannot be saved') 
+      else
+      {
+        let id = this.$store.getters['getSelectedUser']['id']
+        this.$store.commit('saveSelectedUser')
+        this.$router.push({path: `/user/${id}`})
+      }
     },
     deleteSelectedUser(){
       if(confirm('Do you really want to delete it?'))
         this.$store.commit('deleteSelectedUser')
     },
     addPhoneField(){
-      this.$store.commit('addEmptyPhone')
-    }
+      if(!this.telephoneErrors)
+        this.$store.commit('addEmptyPhone')
+      else  
+        console.log('there are errors and cannot be added.')
+    },
   },
 });
 </script>

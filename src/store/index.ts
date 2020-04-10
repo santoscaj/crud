@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 
 Vue.use(Vuex);
 
-class Telephone{
+export class Telephone{
   id: string = v4()
   name: string = ''
   number: string = ''
@@ -95,9 +95,8 @@ export default new Vuex.Store<RootState>({
     getUsers(state: RootState, getters) {
       return state.users;
     },
-    getUserByID: (state) => (id: number | string) => {
-      return state.users.find((user) => user.id == id);
-    },
+    getUserByID: (state) => (id: number | string) => state.users.find((user) => user.id == id)
+    ,
     checkIfIDExists: (state) => (id: number | string ) =>{
       return state.users.some(usr => usr.id == id)
     },
@@ -140,21 +139,10 @@ export default new Vuex.Store<RootState>({
       let id = state.selectedUserId;
       newPhone.name = state.newPhone.name;
       newPhone.number = state.newPhone.number
-    
-
-      // console.log(state.newPhone)
-      // let user = state.users.find(user=>user.id==id) || null;
-
-      // // Caleb why is this necessary? I tried with another method and didnt work
-      // state.newPhone.name = ''
       state.newPhone = {
         name:  '',
         number:  '',
       }
-      // state.newPhone.number = ''
-
-      // if(user)
-      //   user.telephones.push(newPhone)
       state.selectedUser.telephones.push(newPhone)
     },
     updateEditName(state, data){
@@ -203,10 +191,6 @@ export default new Vuex.Store<RootState>({
         state.selectedUser.telephones.splice(phoneIndex, 1)
 
     },
-    // setNewUser(state){
-    //   state.selectedUser = new User()
-    //   state.selectedUserId = state.selectedUser.id
-    // }
   },
   actions: {
     setSelectedUser({ commit, getters }, id){
@@ -237,10 +221,6 @@ export default new Vuex.Store<RootState>({
 
       }
     },
-    // addNewPhone({commit}){
-    //   commit('addNewPhone')
-    //   commit('clearNewPhoneData')
-    // },
     resetSelectedUser({ state, getters, dispatch }){
       const selectedUser = getters.getUserByID(state.selectedUserId)
 

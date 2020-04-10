@@ -3,25 +3,25 @@
     <div class="row"> 
         <div class="block label-area">
             <input 
-            :readonly="!label_is_editable" 
-            :value="label_value"
-            :placeholder="placeholder_label"
-            :class="{'error-input': showLabelError, 'label':!label_is_editable}"
+            :readonly="!editLabel" 
+            :value="labelContent"
+            :placeholder="labelPlaceholder"
+            :class="{'error-input': showLabelError, 'label':!editLabel}"
             @input="e => onLabelValueChange(e.target.value)"
             >
-            <p v-if="showLabelError" class="error-message"> {{error_message_label}} </p>
+            <p v-if="showLabelError" class="error-message"> {{error.label.message}} </p>
         </div>
 
         <div class="block value-area">
             <input 
-            :readonly="!value_is_editable" 
-            :value="value_value"
-            :placeholder="placeholder_value"
-            :class="{'error-input': error.show, 'label':!value_is_editable}"
+            :readonly="!editValue" 
+            :value="valueContent"
+            :placeholder="valuePlaceholder"
+            :class="{'error-input': showValueError, 'label':!editValue}"
             @input="e => onValueValueChange(e.target.value)"
             >
             <div  class="error-message">
-                <p v-if="error.show"> {{error.message}} </p>
+                <p v-if="showValueError"> {{error.value.message}} </p>
             </div>
         </div>
     </div>
@@ -31,12 +31,23 @@
 <script lang="ts">
 import Vue from 'vue';
 
+class Error{
+    label = {
+        show: false,
+        message: ''
+    }
+    value = {
+        show: false,
+        message: ''
+    }
+}
+
 export default Vue.extend({
   name: 'DualInput',
   data(){
       return {
-          label_value: 'testing',
-          value_value: 'testin'
+          labelContent: 'testing',
+          valueContent: 'testin'
       }
   },
   props: {
@@ -48,68 +59,63 @@ export default Vue.extend({
         type:String,
         default: ''
     } ,
-    error_on_label: {
+    editLabel: {
         type:Boolean,
         default: false
     } ,
-    error_on_value: {
-        type:Boolean,
-        default: false
-    } ,
-    label_is_editable: {
-        type:Boolean,
-        default: false
-    } ,
-    value_is_editable: {
+    editValue: {
         type:Boolean,
         default: true
     } ,
     error: {
         type: Object,
-        default: ()=>({}),
+        default: ()=>{ return new Error()},
     },
-    placeholder_label: {
+    labelPlaceholder: {
         type:String,
         default: ''
     } ,
-    placeholder_value: {
+    valuePlaceholder: {
         type:String,
         default: ''
     } ,
   },
   computed:{
     showLabelError(){
-        return this.error_on_label && this.label_is_editable
+        return this.error.label.show && this.editLabel
+    },
+    showValueError(){
+        return this.error.value.show && this.editValue
     },
   },
   methods: {
     onLabelValueChange(newValue : string){
-        this.label_value = newValue;
+        this.labelContent = newValue;
     },
     onValueValueChange(newValue : string){
-        this.value_value = newValue;
+        this.valueContent = newValue;
     }
   },
   watch:{
       label: {
             immediate: true,
             handler(newValue){
-                if (this.label_value !== newValue) 
-                    this.label_value = newValue
+                if (this.labelContent !== newValue) 
+                    this.labelContent = newValue
         }
       },
       value: {
             immediate: true,
             handler(newValue){
-                if (this.value_value !== newValue) 
-                    this.value_value = newValue
+                if (this.valueContent !== newValue) 
+                    this.valueContent = newValue
             }
       },
-      label_value(newValue){
-        this.$emit('labelChanged', this.label_value)
+      labelContent(newValue){
+        this.$emit('labelChanged', this.labelContent)
       },
-      value_value(newValue){
-        this.$emit('input', this.value_value)
+      valueContent(newValue){
+        this.$emit('input', this.valueContent)
       }
   }
 });
