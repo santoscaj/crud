@@ -12,3 +12,9 @@ export function extract(criteria: any[]){
 
     return { show: false }
 }
+
+export const validations = {
+    get['firstName'](){
+        return  ''
+    }
+}

@@ -80,6 +80,24 @@ export default Vue.extend({
       'getSelectedUser',
       'checkIfIDExists'
     ]),
+    validations(){
+      return (field: string, value: any) => (({
+        firstName: extract([
+            required(value),
+            {
+              show: value.includes('a'),
+              message: 'Value cannot contain a'
+            }
+        ]),
+        lastName: extract([
+            required(value),
+            {
+              show: value.includes('a'),
+              message: 'Value cannot contain a'
+            }
+        ])
+      }) as any)[field]
+    },
     editPhoneName: {
       get(){
         return this.$store.state.newPhone.name
