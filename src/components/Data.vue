@@ -4,27 +4,22 @@
 </div>
 <div v-else class="columns">
 
-  <DualInput :error_on_value="Boolean(!getSelectedUser.firstName)" error_message_value="Value cannot be empty" :label="labels.firstName" v-model="getSelectedUser.firstName" />
-  <DualInput :label="labels.lastName"  v-model="getSelectedUser.lastName" />
+  <DualInput :error="validations('firstName', getSelectedUser.firstName)" :label="labels.firstName" v-model="getSelectedUser.firstName" />
+  <DualInput :error="validations('lastName', getSelectedUser.lastName)" :label="labels.lastName"  v-model="getSelectedUser.lastName" />
   <DualInput :label="labels.telephones" :value_is_editable="false"  />
 
   <template :if="getSelectedUser.telephones.length > 0">
      <div v-for="telephone in getSelectedUser.telephones" class="row" :key="telephone.id">
         <div class="label btn-label">
           <button class="small-btn red-btn" @click="removePhoneNumber(telephone.id)">
-            <!-- <i class="fas fa-trash-alt"></i> -->
             <i class="fas fa-times"></i>
           </button>
-          <!-- <button class="small-btn orange-btn" @click="removePhoneNumber(telephone.id)">
-            <i class="fas fa-pen"></i>
-            <i class="fas fa-minus"></i>
-          </button> -->
         </div>
         <DualInput :label_is_editable="true" :label="telephone.name"  v-model="telephone.number" @labelChanged="value => telephone.name = value" />
       </div>
   </template>
 
-  <template :if="getSelectedUser.additionalNumbers.length > 0">
+  <!-- <template :if="getSelectedUser.additionalNumbers.length > 0">
      <div v-for="telephone in getSelectedUser.additionalNumbers" class="row" :key="telephone.id">
         <div class="label btn-label">
           <button class="small-btn red-btn" @click="removePhoneNumber(telephone.id)">
@@ -32,7 +27,7 @@
         </div>
         <DualInput :label_is_editable="true" :label="telephone.name"  v-model="telephone.number" />
       </div>
-  </template>
+  </template> -->
 
   <div class="row"> 
     <div class="label btn-label">
@@ -60,6 +55,8 @@ import Vue from 'vue';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 import DualInput from '@/components/Input.vue';
 import _startCase from 'lodash/startCase';
+import { required, extract } from '../utils';
+
 
 export default Vue.extend({
   name: 'Data',
@@ -83,6 +80,24 @@ export default Vue.extend({
       'getSelectedUser',
       'checkIfIDExists'
     ]),
+    validations(){
+      return (field: string, value: any) => (({
+        firstName: extract([
+            required(value),
+            {
+              show: value.includes('a'),
+              message: 'Value cannot contain a'
+            }
+        ]),
+        lastName: extract([
+            required(value),
+            {
+              show: value.includes('a'),
+              message: 'Value cannot contain a'
+            }
+        ])
+      }) as any)[field]
+    },
     editPhoneName: {
       get(){
         return this.$store.state.newPhone.name

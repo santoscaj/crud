@@ -17,11 +17,11 @@
             :readonly="!value_is_editable" 
             :value="value_value"
             :placeholder="placeholder_value"
-            :class="{'error-input': showValueError, 'label':!value_is_editable}"
+            :class="{'error-input': error.show, 'label':!value_is_editable}"
             @input="e => onValueValueChange(e.target.value)"
             >
             <div  class="error-message">
-                <p v-if="showValueError"> {{error_message_value}} </p>
+                <p v-if="error.show"> {{error.message}} </p>
             </div>
         </div>
     </div>
@@ -64,14 +64,10 @@ export default Vue.extend({
         type:Boolean,
         default: true
     } ,
-    error_message_label: {
-        type:String,
-        default: ''
-    } ,
-    error_message_value: {
-        type:String,
-        default: ''
-    } ,
+    error: {
+        type: Object,
+        default: ()=>({}),
+    },
     placeholder_label: {
         type:String,
         default: ''
@@ -85,9 +81,6 @@ export default Vue.extend({
     showLabelError(){
         return this.error_on_label && this.label_is_editable
     },
-    showValueError(){
-        return this.error_on_value && this.value_is_editable
-    }
   },
   methods: {
     onLabelValueChange(newValue : string){
