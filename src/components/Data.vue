@@ -3,7 +3,7 @@
   Error 404 page not found. LOL
 </div>
 <div v-else class="columns">
-
+  <Modal v-model="confirmation.visible" :message="confirmation.message" :title="confirmation.title" :callback="confirmation.callback()" :type="confirmation.type" />
   <DualInput :error="nameFieldValidation('', getSelectedUser.firstName)" :label="labels.firstName" v-model="getSelectedUser.firstName" />
   <DualInput :error="nameFieldValidation('',getSelectedUser.lastName)" :label="labels.lastName"  v-model="getSelectedUser.lastName" />
   <DualInput :label="labels.telephones" :editValue="false"  />
@@ -45,6 +45,7 @@ import Vue from 'vue';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 import { Telephone } from '@/store'
 import DualInput from '@/components/Input.vue';
+import Modal from '@/components/Modal.vue';
 import _startCase from 'lodash/startCase';
 import { required, extract, numericOnly } from '../utils';
 
@@ -53,15 +54,21 @@ export default Vue.extend({
   name: 'Data',
   data(){
     return {
+      confirmation: {
+        visible: false,
+        title: '',
+        message: '',
+        type: 'confirmation',
+        callback: ()=>()=>{}
+      },
       labels: {
         firstName:'First Name',
         lastName: 'Last Name',
         telephones: 'Telephones'
       },
-
     }
   },
-  components: {DualInput},
+  components: {DualInput, Modal},
   props: {
     msg: String,
   },
@@ -150,6 +157,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    confirm(confirmation: boolean){
+      console.log('confirmation received', confirmation)
+    },
     ...mapActions(['setSelectedUser']),
     ...mapMutations(['addNewPhone',
           'clearNewPhoneData',
@@ -169,18 +179,49 @@ export default Vue.extend({
       this.$store.commit('clearNewPhoneData');
     },
     saveSelectedUser(){
-      if(this.nameAndLastnameErrors || this.telephoneErrors)
-        console.log('there are errors cannot be saved') 
+      let self = this
+      if(this.nameAndLastnameErrors || this.telephoneErrors){
+        this.$data.confirmation =
+        {
+          visible: true,
+          title: 'Information box',
+          message: 'You cannot save user! input field contains error',
+          type: 'information',
+          callback: ()=>(confirmation: boolean)=>{}
+        }
+      }
       else
       {
         let id = this.$store.getters['getSelectedUser']['id']
         this.$store.commit('saveSelectedUser')
         this.$router.push({path: `/user/${id}`})
+
+        this.$data.confirmation =
+        {
+          visible: true,
+          title: 'Information box',
+          message: 'User saved successfully!',
+          type: 'information',
+          callback: ()=>(confirmation: boolean)=>{}
+        }
       }
     },
     deleteSelectedUser(){
-      if(confirm('Do you really want to delete it?'))
-        this.$store.commit('deleteSelectedUser')
+      // caleb why did I have to
+      let self = this
+      this.$data.confirmation =
+      {
+        visible: true,
+        title: 'Confirmation box',
+        message: 'Do you really want to delete the selected user?',
+        type: 'confirmation',
+        callback: ()=>(confirmation: boolean)=>{
+          if(confirmation){
+            self.$store.commit('deleteSelectedUser')
+            self.$router.push({path:'/user/new'}) 
+          }
+        }
+      }
     },
     addPhoneField(){
       if(!this.telephoneErrors)
@@ -188,6 +229,9 @@ export default Vue.extend({
       else  
         console.log('there are errors and cannot be added.')
     },
+    test:()=>(resultado: boolean)=>{
+      console.log('el resultado manito fue ', resultado)
+    }
   },
 });
 </script>

@@ -1,9 +1,9 @@
 <template>
   <div class="hello">
-
     <div :class="{'block': true, 'active': user.id===getSelectedUserId}" v-for="user in getUsers" :key="user.id">
       <router-link :to="'/user/'+user.id">{{user.firstName}} {{user.lastName}}</router-link>
     </div>
+
     <div :class="{'block': true, 'active': 'new'===getSelectedUserId}" id="addUser">
       <router-link to='/user/new'> + </router-link>
     </div>
@@ -131,6 +131,10 @@ a {
 .active{
   background: white;
   color: blue;
+}
+
+.slide-fade-enter-active {
+  transition: all .3s ease;
 }
 
 </style>
