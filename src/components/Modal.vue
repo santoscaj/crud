@@ -1,17 +1,19 @@
 <template>
-    <div v-if="show" class="my-modal">
-        <div class="confirmation-box">
-            <div class="header-area">
-                <p>{{title}}</p>
-            </div>
-            <div class="message-area">{{message}}</div>
-            <div class="confirmation-area">
-                <button v-if="type==='confirmation'" class="confirmation-btn red" @click="confirmation(false)">No</button>
-                <button v-if="type==='confirmation'" class="confirmation-btn blue" @click="confirmation(true)">Yes</button>
-                <button v-if="type==='information'" class="confirmation-btn white" @click="confirmation(true)">Ok</button>
+    <transition name="fade">
+        <div v-if="show" class="my-modal">
+            <div class="confirmation-box">
+                <div class="header-area">
+                    <p>{{title}}</p>
+                </div>
+                <div class="message-area">{{message}}</div>
+                <div class="confirmation-area">
+                    <button v-if="type==='confirmation'" class="confirmation-btn red" @click="confirmation(false)">No</button>
+                    <button v-if="type==='confirmation'" class="confirmation-btn blue" @click="confirmation(true)">Yes</button>
+                    <button v-if="type==='information'" class="confirmation-btn white" @click="confirmation(true)">Ok</button>
+                </div>
             </div>
         </div>
-    </div>
+    </transition>
 </template>
 
 <script lang="ts">
@@ -27,9 +29,9 @@ export default Vue.extend({
     props:{
         type:{
             type: String,
+            validator: (val: string) => ['information','cofirmation'].includes(val),
             default: "confirmation"
-        }
-        ,
+        },
         title: {
             required: true,
             default: 'Confirmation box'
@@ -72,6 +74,10 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+.fade{
+    overflow: hidden;
+}
+
 .my-modal{
     background: rgb(0,0,0,0.4);
     position: absolute;
@@ -86,6 +92,7 @@ export default Vue.extend({
     justify-content: center;
     align-content: center;
     align-items:center;
+    overflow: hidden;
 }
 
 .confirmation-box{
@@ -162,5 +169,17 @@ export default Vue.extend({
     color: white;
 }
 
+.fade-enter-active {
+  transition: all .3s ease;
+}
+
+.fade-leave-active {
+  transition: all 0.3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+
+.fade-enter, .fade-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 
 </style>

@@ -13,12 +13,12 @@
         </div>
 
         <div class="block value-area">
-            <input 
+            <input
+            ref="inputVacanoso" 
             :readonly="!editValue" 
-            :value="valueContent"
+            v-model="valueContent"
             :placeholder="valuePlaceholder"
             :class="{'error-input': showValueError, 'label':!editValue}"
-            @input="e => onValueValueChange(e.target.value)"
             >
             <div  class="error-message">
                 <p v-if="showValueError"> {{error.value.message}} </p>
@@ -79,6 +79,11 @@ export default Vue.extend({
         type:String,
         default: ''
     } ,
+    type: {
+        type:String,
+        validator: (x:string) => ['telephone','text'].includes(x),
+        default: 'text',
+    } ,
   },
   computed:{
     showLabelError(){
@@ -92,8 +97,26 @@ export default Vue.extend({
     onLabelValueChange(newValue : string){
         this.labelContent = newValue;
     },
-    onValueValueChange(newValue : string){
-        this.valueContent = newValue;
+    formatNumber(text: string, input: HTMLInputElement){
+        let groups = text.match(/\d{1}/g) || []
+        
+        let formatted = '(***) ***-****'
+        for (const number of groups){
+            formatted = formatted.replace(/\*/, number)
+        }
+        
+        const cursorIndex = formatted.indexOf('*')
+        const positionCaret = ()=>{
+            if(cursorIndex > -1){
+                input.focus()
+                input.setSelectionRange(cursorIndex, cursorIndex)
+            }
+        }
+        
+        return {
+            formatted: formatted.replace(/\*/g, " "),
+            positionCaret
+        }
     }
   },
   watch:{
@@ -114,7 +137,17 @@ export default Vue.extend({
       labelContent(newValue){
         this.$emit('labelChanged', this.labelContent)
       },
-      valueContent(newValue){
+      async valueContent(newValue, oldValue){
+        if(newValue == oldValue){
+            return
+        }
+
+        if (this.type == 'telephone'){
+            const obj = this.formatNumber(newValue, (this.$refs as any).inputVacanoso)
+            this.valueContent = obj.formatted
+            await this.$nextTick()
+            obj.positionCaret()
+        }
         this.$emit('input', this.valueContent)
       }
   }

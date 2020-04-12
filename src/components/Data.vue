@@ -3,7 +3,9 @@
   Error 404 page not found. LOL
 </div>
 <div v-else class="columns">
+
   <Modal v-model="confirmation.visible" :message="confirmation.message" :title="confirmation.title" :callback="confirmation.callback()" :type="confirmation.type" />
+  
   <DualInput :error="nameFieldValidation('', getSelectedUser.firstName)" :label="labels.firstName" v-model="getSelectedUser.firstName" />
   <DualInput :error="nameFieldValidation('',getSelectedUser.lastName)" :label="labels.lastName"  v-model="getSelectedUser.lastName" />
   <DualInput :label="labels.telephones" :editValue="false"  />
@@ -15,7 +17,7 @@
             <i class="fas fa-times"></i>
           </button>
         </div>
-        <DualInput :error="telephoneValidation(telephone.name, telephone.number)" :editLabel="true" :label="telephone.name"  v-model="telephone.number" @labelChanged="value => telephone.name = value" />
+        <DualInput type="telephone" valuePlaceholder="(   )    -    " :error="telephoneValidation(telephone.name, telephone.number)" :editLabel="true" :label="telephone.name"  v-model="telephone.number" @labelChanged="value => telephone.name = value" />
       </div>
   </template>
 
@@ -49,6 +51,26 @@ import Modal from '@/components/Modal.vue';
 import _startCase from 'lodash/startCase';
 import { required, extract, numericOnly } from '../utils';
 
+const MyMixin = {
+  computed: {
+    nameFieldValidation:()=>( labelContent: string, valueContent: string)  : {label: {show: boolean, message: string}, value: {show: boolean, message: string} } => ({
+      label: extract([required(labelContent)]),
+      value: extract([required(valueContent)])
+    }),
+    telephoneValidation(){
+      return function(labelContent: string, valueContent: any){
+        return {
+          label: extract([required(labelContent)]),
+          value: extract([
+            required(valueContent),
+            numericOnly(valueContent)
+            ]),
+        }
+      }
+    },
+  }
+}
+
 
 export default Vue.extend({
   name: 'Data',
@@ -72,27 +94,13 @@ export default Vue.extend({
   props: {
     msg: String,
   },
+  mixins:[ MyMixin ],
   computed: {
     ...mapGetters([
       'getUsers',
       'getSelectedUser',
       'checkIfIDExists'
     ]),
-    nameFieldValidation:()=>( labelContent: string, valueContent: string)  : {label: {show: boolean, message: string}, value: {show: boolean, message: string} } => ({
-      label: extract([required(labelContent)]),
-      value: extract([required(valueContent)])
-    }),
-    telephoneValidation(){
-      return function(labelContent: string, valueContent: any){
-        return {
-          label: extract([required(labelContent)]),
-          value: extract([
-            required(valueContent),
-            numericOnly(valueContent)
-            ]),
-        }
-      }
-    },
     validations(){
       return (field: string, value: any) => (({
         firstName: extract([
@@ -181,7 +189,8 @@ export default Vue.extend({
     saveSelectedUser(){
       let self = this
       if(this.nameAndLastnameErrors || this.telephoneErrors){
-        this.$data.confirmation =
+
+      this.$data.confirmation =
         {
           visible: true,
           title: 'Information box',

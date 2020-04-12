@@ -5,7 +5,7 @@ export const required = (value: string) => ({
 
 export function numericOnly(value: string){
     return {
-        show: !/^(\d|-|\(|\))*$/.test(value),
+        show: !/^([\d-\(\)\s])*$/.test(value),
         message: 'Field should only contain numbers'
     }
 }
