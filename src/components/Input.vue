@@ -14,11 +14,13 @@
 
         <div class="block value-area">
             <input
-            ref="inputVacanoso" 
+            ref="telephoneInput" 
             :readonly="!editValue" 
             v-model="valueContent"
             :placeholder="valuePlaceholder"
             :class="{'error-input': showValueError, 'label':!editValue}"
+            @input="e=>showinput(e)"
+            @focus="onFocus()"
             >
             <div  class="error-message">
                 <p v-if="showValueError"> {{error.value.message}} </p>
@@ -47,7 +49,8 @@ export default Vue.extend({
   data(){
       return {
           labelContent: 'testing',
-          valueContent: 'testin'
+          valueContent: 'testin',
+          cursorPosition: 1
       }
   },
   props: {
@@ -94,6 +97,10 @@ export default Vue.extend({
     },
   },
   methods: {
+    showinput(input:any){console.log(input)},
+    onFocus(){
+        console.log('focused',(this.$refs.telephoneInput as HTMLInputElement).selectionStart )
+    },
     onLabelValueChange(newValue : string){
         this.labelContent = newValue;
     },
@@ -106,17 +113,55 @@ export default Vue.extend({
         }
         
         const cursorIndex = formatted.indexOf('*')
-        const positionCaret = ()=>{
-            if(cursorIndex > -1){
-                input.focus()
-                input.setSelectionRange(cursorIndex, cursorIndex)
-            }
+        if(cursorIndex > -1){
+            this.cursorPosition =cursorIndex
         }
         
-        return {
-            formatted: formatted.replace(/\*/g, " "),
-            positionCaret
+        return formatted.replace(/\*/g, " ")
+    },
+    async addingContent(newValue:string, oldValue:string){
+        let input = (this.$refs.telephoneInput as HTMLInputElement)
+
+        debugger
+        let currentCursorPosition = input.selectionStart || 1
+        // Cursor position needs to be adjusted ue to the additional characters in the telephone: '(   )   -    '
+        // Characters in position 1, 4 and 9
+        let adjustedCursorPosition = (currentCursorPosition > 9) ? currentCursorPosition + 3 :
+                                    (currentCursorPosition > 4) ? currentCursorPosition + 2 :
+                                    (currentCursorPosition <2 ) ? 2 : currentCursorPosition
+         
+        console.dir(input.selectionStart)
+        if(newValue == oldValue){
+            return
         }
+
+        if (this.type == 'telephone'){
+            this.valueContent = this.formatNumber(newValue, (this.$refs as any).telephoneInput)
+            console.log('this', this.cursorPosition)
+            await this.$nextTick()
+            debugger
+            if(adjustedCursorPosition<this.cursorPosition)
+                this.cursorPosition = adjustedCursorPosition
+
+            input.focus()
+            input.setSelectionRange(this.cursorPosition, this.cursorPosition)
+        }
+        
+        this.$emit('input', this.valueContent)
+    },
+    removingContent(newValue:string, oldValue:string){
+        let input = (this.$refs.telephoneInput as HTMLInputElement)
+
+        debugger
+        let currentCursorPosition = input.selectionStart || 1
+        // Cursor position needs to be adjusted ue to the additional characters in the telephone: '(   )   -    '
+        // Characters in position 1, 4 and 9
+        let adjustedCursorPosition = (currentCursorPosition <2 ) ? 1 : 
+                                    (currentCursorPosition == 6) ? 4 :
+                                    (currentCursorPosition == 10 ) ? 9 : currentCursorPosition
+
+        input.focus()
+        input.setSelectionRange(this.cursorPosition, this.cursorPosition)
     }
   },
   watch:{
@@ -137,18 +182,12 @@ export default Vue.extend({
       labelContent(newValue){
         this.$emit('labelChanged', this.labelContent)
       },
-      async valueContent(newValue, oldValue){
-        if(newValue == oldValue){
-            return
+      valueContent(newValue, oldValue){
+        if(!oldValue || (newValue.length > oldValue.lenght))
+            this.addingContent(newValue, oldValue)
+        if(newValue.length < oldValue.lenght){
+            this.removingContent(newValue, oldValue)
         }
-
-        if (this.type == 'telephone'){
-            const obj = this.formatNumber(newValue, (this.$refs as any).inputVacanoso)
-            this.valueContent = obj.formatted
-            await this.$nextTick()
-            obj.positionCaret()
-        }
-        this.$emit('input', this.valueContent)
       }
   }
 });
