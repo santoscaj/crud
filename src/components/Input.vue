@@ -19,8 +19,6 @@
             v-model="valueContent"
             :placeholder="valuePlaceholder"
             :class="{'error-input': showValueError, 'label':!editValue}"
-            @input="e=>showinput(e)"
-            @focus="onFocus()"
             >
             <div  class="error-message">
                 <p v-if="showValueError"> {{error.value.message}} </p>
@@ -48,9 +46,11 @@ export default Vue.extend({
   name: 'DualInput',
   data(){
       return {
-          labelContent: 'testing',
-          valueContent: 'testin',
-          cursorPosition: 1
+          telephoneFormat: '(***) ***-****',
+          telephoneRegex: /^\([\d]{3}\) [\d]{3}-[\d]{4}/,
+          labelContent: '',
+          valueContent: '',
+          cursorIndex : 1
       }
   },
   props: {
@@ -84,7 +84,7 @@ export default Vue.extend({
     } ,
     type: {
         type:String,
-        validator: (x:string) => ['telephone','text'].includes(x),
+        // validator: (x:string) => ['telephone','text'].includes(x),
         default: 'text',
     } ,
   },
@@ -97,71 +97,100 @@ export default Vue.extend({
     },
   },
   methods: {
-    showinput(input:any){console.log(input)},
     onFocus(){
         console.log('focused',(this.$refs.telephoneInput as HTMLInputElement).selectionStart )
+        this.moveToPosition(this.cursorIndex,this.cursorIndex)
     },
     onLabelValueChange(newValue : string){
         this.labelContent = newValue;
     },
+    moveToPosition(startPosition: number, endPosition: number){
+        let inputComponent = (this.$refs.telephoneInput as HTMLInputElement)
+        inputComponent.focus()
+        inputComponent.setSelectionRange(startPosition, endPosition)
+    },
+    async modifyInputContentAndMoveCursor(cursorIndex:number){
+        this.$emit('input', this.valueContent)
+        await this.$nextTick()
+        this.moveToPosition(cursorIndex || 15,cursorIndex || 15)
+    },
     formatNumber(text: string, input: HTMLInputElement){
-        let groups = text.match(/\d{1}/g) || []
         
-        let formatted = '(***) ***-****'
+        let groups = text.match(/\d{1}/g) || []
+        let formatted = this.telephoneFormat
+
         for (const number of groups){
             formatted = formatted.replace(/\*/, number)
         }
         
-        const cursorIndex = formatted.indexOf('*')
-        if(cursorIndex > -1){
-            this.cursorPosition =cursorIndex
-        }
-        
+        let cursorIndex = formatted.indexOf('*')        
+        if(cursorIndex < 1)
+            cursorIndex = 15
+        this.cursorIndex = cursorIndex
         return formatted.replace(/\*/g, " ")
     },
-    async addingContent(newValue:string, oldValue:string){
-        let input = (this.$refs.telephoneInput as HTMLInputElement)
-
-        debugger
-        let currentCursorPosition = input.selectionStart || 1
-        // Cursor position needs to be adjusted ue to the additional characters in the telephone: '(   )   -    '
-        // Characters in position 1, 4 and 9
-        let adjustedCursorPosition = (currentCursorPosition > 9) ? currentCursorPosition + 3 :
-                                    (currentCursorPosition > 4) ? currentCursorPosition + 2 :
-                                    (currentCursorPosition <2 ) ? 2 : currentCursorPosition
-         
-        console.dir(input.selectionStart)
-        if(newValue == oldValue){
-            return
-        }
-
-        if (this.type == 'telephone'){
-            this.valueContent = this.formatNumber(newValue, (this.$refs as any).telephoneInput)
-            console.log('this', this.cursorPosition)
-            await this.$nextTick()
-            debugger
-            if(adjustedCursorPosition<this.cursorPosition)
-                this.cursorPosition = adjustedCursorPosition
-
-            input.focus()
-            input.setSelectionRange(this.cursorPosition, this.cursorPosition)
-        }
+    organizeAsTelephoneArray(str: string){
+        let numberChars = str.match(/\d{1}/g) || []
+        let numberCount = numberChars.length
+        let telephoneArr = '(***) ***-****'.split('')
+        let organizedTelephoneArr : (string | null)[] = []
         
-        this.$emit('input', this.valueContent)
+        // Since the symbols cannot be deleted in the telephone string. '(   )    -    '
+        // When a delete request is placed to delete one of these symbols, the next deletable number will be deleted instead
+        
+        let deleteCharAt = !str.includes(') ') ?  3 : !str.includes('-') ? 8 : null
+
+        telephoneArr.forEach((char,index) => {
+            if(deleteCharAt === index)
+                numberChars.shift()
+            if(char==='*')
+                organizedTelephoneArr.push(numberChars.shift() || ' ')
+            else
+                organizedTelephoneArr.push(char)
+
+        })
+        // console.log('>',str, organizedTelephoneArr.join('') )
+        return {
+                array: organizedTelephoneArr,
+                // numbers: numberCount,
+                deleted: deleteCharAt==3? 2 : deleteCharAt==8? 1: 0,
+                count: deleteCharAt? numberCount : numberCount -1
+                }
     },
-    removingContent(newValue:string, oldValue:string){
-        let input = (this.$refs.telephoneInput as HTMLInputElement)
+    organizeTelephoneInput(newValue: string, oldValue: string ){
+        // let newRegex = new RegExp('\\d{1}','g')
+        let newNumberObj = this.organizeAsTelephoneArray(newValue)
+        let oldNumberObj = this.organizeAsTelephoneArray(oldValue)
+        let telephoneArray = '(   )    -    '.split('') 
 
-        debugger
-        let currentCursorPosition = input.selectionStart || 1
-        // Cursor position needs to be adjusted ue to the additional characters in the telephone: '(   )   -    '
-        // Characters in position 1, 4 and 9
-        let adjustedCursorPosition = (currentCursorPosition <2 ) ? 1 : 
-                                    (currentCursorPosition == 6) ? 4 :
-                                    (currentCursorPosition == 10 ) ? 9 : currentCursorPosition
+        let newInputValue : (number|string)[] = []
+        let cursorIndex : null | number = null
 
-        input.focus()
-        input.setSelectionRange(this.cursorPosition, this.cursorPosition)
+        // add step to the index depending on wether the new value is greater (add) or smaller (delete)
+        let step = (newNumberObj.count >= oldNumberObj.count)? 1 : 0
+        if (newNumberObj.deleted)
+            step = step -1
+
+        telephoneArray.forEach((char, index)=>{
+
+            let nextOldValueChar = oldNumberObj.array.shift()
+            let nextNewValueChar = newNumberObj.array.shift()
+
+            //placing the cursor where the last change ocurred, newValue!=oldValue
+            if (!cursorIndex && ( nextNewValueChar !== nextOldValueChar)){
+                cursorIndex = index + step
+                this.cursorIndex = cursorIndex
+            }            
+            newInputValue.push(nextNewValueChar || ' ')
+        })
+
+        this.valueContent = newInputValue.join('')
+        if(cursorIndex){
+            while([0,4,5,9].includes(cursorIndex)){
+                cursorIndex= cursorIndex-1
+            }
+            this.modifyInputContentAndMoveCursor(this.cursorIndex)
+        }
     }
   },
   watch:{
@@ -183,11 +212,10 @@ export default Vue.extend({
         this.$emit('labelChanged', this.labelContent)
       },
       valueContent(newValue, oldValue){
-        if(!oldValue || (newValue.length > oldValue.lenght))
-            this.addingContent(newValue, oldValue)
-        if(newValue.length < oldValue.lenght){
-            this.removingContent(newValue, oldValue)
-        }
+        if(oldValue === newValue || this.type!=='telephone')
+            return
+
+        this.organizeTelephoneInput(newValue, oldValue)
       }
   }
 });

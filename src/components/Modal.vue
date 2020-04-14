@@ -29,7 +29,7 @@ export default Vue.extend({
     props:{
         type:{
             type: String,
-            validator: (val: string) => ['information','cofirmation'].includes(val),
+            // validator: (val: string) => ['information','cofirmation'].includes(val),
             default: "confirmation"
         },
         title: {
