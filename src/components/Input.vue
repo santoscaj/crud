@@ -30,6 +30,9 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import _isEqual from 'lodash/isEqual'
+import _get from 'lodash/get'
+import _diff from  'lodash/difference'
 
 class Error{
     label = {
@@ -112,9 +115,9 @@ export default Vue.extend({
     async modifyInputContentAndMoveCursor(cursorIndex:number){
         this.$emit('input', this.valueContent)
         await this.$nextTick()
-        this.moveToPosition(cursorIndex || 15,cursorIndex || 15)
+        this.moveToPosition(cursorIndex, cursorIndex)
     },
-    formatNumber(text: string, input: HTMLInputElement){
+    formatNumber(text: string){
         
         let groups = text.match(/\d{1}/g) || []
         let formatted = this.telephoneFormat
@@ -123,74 +126,60 @@ export default Vue.extend({
             formatted = formatted.replace(/\*/, number)
         }
         
-        let cursorIndex = formatted.indexOf('*')        
-        if(cursorIndex < 1)
-            cursorIndex = 15
-        this.cursorIndex = cursorIndex
         return formatted.replace(/\*/g, " ")
     },
-    organizeAsTelephoneArray(str: string){
+    formattedNumber(str: string){
         let numberChars = str.match(/\d{1}/g) || []
+        let symbolChars = str.match(/[)(-]{1}/g) || []
         let numberCount = numberChars.length
         let telephoneArr = '(***) ***-****'.split('')
         let organizedTelephoneArr : (string | null)[] = []
         
-        // Since the symbols cannot be deleted in the telephone string. '(   )    -    '
-        // When a delete request is placed to delete one of these symbols, the next deletable number will be deleted instead
-        
-        let deleteCharAt = !str.includes(') ') ?  3 : !str.includes('-') ? 8 : null
+        // (123) 456-
+        // (123) 456
 
-        telephoneArr.forEach((char,index) => {
-            if(deleteCharAt === index)
-                numberChars.shift()
-            if(char==='*')
+        for(const char of telephoneArr){
+            if( char === '*'){
                 organizedTelephoneArr.push(numberChars.shift() || ' ')
-            else
-                organizedTelephoneArr.push(char)
+            }else{
+                const currentSymbol = symbolChars.shift()!
+                ;(currentSymbol || numberChars.length) && organizedTelephoneArr.push(char)
+            }
+            if(!numberChars.length && !symbolChars.length) break
+        }
 
-        })
-        // console.log('>',str, organizedTelephoneArr.join('') )
         return {
-                array: organizedTelephoneArr,
-                // numbers: numberCount,
-                deleted: deleteCharAt==3? 2 : deleteCharAt==8? 1: 0,
-                count: deleteCharAt? numberCount : numberCount -1
-                }
+            array: organizedTelephoneArr,
+            numberCount
+        }
     },
     organizeTelephoneInput(newValue: string, oldValue: string ){
         // let newRegex = new RegExp('\\d{1}','g')
-        let newNumberObj = this.organizeAsTelephoneArray(newValue)
-        let oldNumberObj = this.organizeAsTelephoneArray(oldValue)
-        let telephoneArray = '(   )    -    '.split('') 
+        let newNumberObj = this.formattedNumber(newValue)
+        let oldNumberObj = this.formattedNumber(oldValue)
 
-        let newInputValue : (number|string)[] = []
-        let cursorIndex : null | number = null
+        if(oldValue && (newValue == oldValue) && !/[^()\s-\d]/.test(newValue)) return
+        let telephoneArray = '(***) ***-****'.split('')
+        let newInputValue = ''
 
-        // add step to the index depending on wether the new value is greater (add) or smaller (delete)
-        let step = (newNumberObj.count >= oldNumberObj.count)? 1 : 0
-        if (newNumberObj.deleted)
-            step = step -1
-
+        let step = newNumberObj.array.length >= oldNumberObj.array.length ? 1 : -1
+        // const diff = _diff(oldValue.split(''), newValue.split('')).join('')
+        // if(/[() -]/.test(diff)){
+        //     step = -1
+        // }
+        
         telephoneArray.forEach((char, index)=>{
-
-            let nextOldValueChar = oldNumberObj.array.shift()
             let nextNewValueChar = newNumberObj.array.shift()
-
-            //placing the cursor where the last change ocurred, newValue!=oldValue
-            if (!cursorIndex && ( nextNewValueChar !== nextOldValueChar)){
-                cursorIndex = index + step
-                this.cursorIndex = cursorIndex
-            }            
-            newInputValue.push(nextNewValueChar || ' ')
+            newInputValue += (nextNewValueChar || char)
         })
 
-        this.valueContent = newInputValue.join('')
-        if(cursorIndex){
-            while([0,4,5,9].includes(cursorIndex)){
-                cursorIndex= cursorIndex-1
-            }
-            this.modifyInputContentAndMoveCursor(this.cursorIndex)
+        let cursorIndex = (this.$refs.telephoneInput as HTMLInputElement).selectionStart!
+        while(_get(newInputValue, cursorIndex, null) && !/[\*\d]/.test(newInputValue[cursorIndex])){
+            cursorIndex += step
         }
+
+        this.valueContent = newInputValue.replace(/\*/g, ' ').trim()
+        this.modifyInputContentAndMoveCursor(cursorIndex)
     }
   },
   watch:{
