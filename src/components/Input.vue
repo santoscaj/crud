@@ -14,7 +14,15 @@
 
         <div class="block value-area">
             <input
-            ref="telephoneInput" 
+            v-if="type==='telephone'"
+            v-mask="'(###) ###-####'"
+            :readonly="!editValue" 
+            v-model="valueContent"
+            :placeholder="valuePlaceholder"
+            :class="{'error-input': showValueError, 'label':!editValue}"
+            >
+            <input
+            v-else
             :readonly="!editValue" 
             v-model="valueContent"
             :placeholder="valuePlaceholder"
@@ -112,75 +120,6 @@ export default Vue.extend({
         inputComponent.focus()
         inputComponent.setSelectionRange(startPosition, endPosition)
     },
-    async modifyInputContentAndMoveCursor(cursorIndex:number){
-        this.$emit('input', this.valueContent)
-        await this.$nextTick()
-        this.moveToPosition(cursorIndex, cursorIndex)
-    },
-    formatNumber(text: string){
-        
-        let groups = text.match(/\d{1}/g) || []
-        let formatted = this.telephoneFormat
-
-        for (const number of groups){
-            formatted = formatted.replace(/\*/, number)
-        }
-        
-        return formatted.replace(/\*/g, " ")
-    },
-    formattedNumber(str: string){
-        let numberChars = str.match(/\d{1}/g) || []
-        let symbolChars = str.match(/[)(-]{1}/g) || []
-        let numberCount = numberChars.length
-        let telephoneArr = '(***) ***-****'.split('')
-        let organizedTelephoneArr : (string | null)[] = []
-        
-        // (123) 456-
-        // (123) 456
-
-        for(const char of telephoneArr){
-            if( char === '*'){
-                organizedTelephoneArr.push(numberChars.shift() || ' ')
-            }else{
-                const currentSymbol = symbolChars.shift()!
-                ;(currentSymbol || numberChars.length) && organizedTelephoneArr.push(char)
-            }
-            if(!numberChars.length && !symbolChars.length) break
-        }
-
-        return {
-            array: organizedTelephoneArr,
-            numberCount
-        }
-    },
-    organizeTelephoneInput(newValue: string, oldValue: string ){
-        // let newRegex = new RegExp('\\d{1}','g')
-        let newNumberObj = this.formattedNumber(newValue)
-        let oldNumberObj = this.formattedNumber(oldValue)
-
-        if(oldValue && (newValue == oldValue) && !/[^()\s-\d]/.test(newValue)) return
-        let telephoneArray = '(***) ***-****'.split('')
-        let newInputValue = ''
-
-        let step = newNumberObj.array.length >= oldNumberObj.array.length ? 1 : -1
-        // const diff = _diff(oldValue.split(''), newValue.split('')).join('')
-        // if(/[() -]/.test(diff)){
-        //     step = -1
-        // }
-        
-        telephoneArray.forEach((char, index)=>{
-            let nextNewValueChar = newNumberObj.array.shift()
-            newInputValue += (nextNewValueChar || char)
-        })
-
-        let cursorIndex = (this.$refs.telephoneInput as HTMLInputElement).selectionStart!
-        while(_get(newInputValue, cursorIndex, null) && !/[\*\d]/.test(newInputValue[cursorIndex])){
-            cursorIndex += step
-        }
-
-        this.valueContent = newInputValue.replace(/\*/g, ' ').trim()
-        this.modifyInputContentAndMoveCursor(cursorIndex)
-    }
   },
   watch:{
       label: {
@@ -201,10 +140,8 @@ export default Vue.extend({
         this.$emit('labelChanged', this.labelContent)
       },
       valueContent(newValue, oldValue){
-        if(oldValue === newValue || this.type!=='telephone')
-            return
-
-        this.organizeTelephoneInput(newValue, oldValue)
+          if (newValue!==oldValue)
+            this.$emit('input', this.valueContent)
       }
   }
 });
