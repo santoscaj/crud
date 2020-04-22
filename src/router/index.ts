@@ -9,9 +9,9 @@ export default new Router({
     mode: 'hash',
     routes: [
         {
-            path: '/home/',
+            path: '/',
             name: 'home',
-            redirect: { name: 'user' },
+            redirect: { name: 'user', params: {id: 'new'} },
             component: Data,
         },
         {

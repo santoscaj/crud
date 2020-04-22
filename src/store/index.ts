@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex, { StoreOptions } from 'vuex';
 import { v4 } from 'uuid'
+import _cloneDeep from 'lodash/cloneDeep'
 
 
 Vue.use(Vuex);
@@ -165,7 +166,9 @@ export default new Vuex.Store<RootState>({
 
     },
     saveSelectedUser(state){
+      //
       const activeUserIndex = state.users.findIndex((user: User) => user.id == state.selectedUserId)
+
       if(activeUserIndex > -1){
         state.users.splice(activeUserIndex, 1, state.selectedUser)
       } else {
@@ -195,30 +198,15 @@ export default new Vuex.Store<RootState>({
   actions: {
     setSelectedUser({ commit, getters }, id){
       if (id==='new'){
-        // Hi Caleb is this necessary? I mean to create new consts before commiting 
         const newUser = new User()
         const newUserID = v4()
+
         commit('setSelectedUser', { id:newUserID, user:newUser })
       }
       else{
-        // Caleb how would you do this
         const user = getters.getUserByID(id)
-        let newUser = new User();
-        newUser.firstName = user.firstName;
-        newUser.lastName = user.lastName;
-        // newUser.telephones = []
-
-        user.telephones.forEach((t: Telephone) => {
-          let newTelephone = new Telephone();
-          newTelephone.name = t.name
-          newTelephone.number = t.number
-
-          newUser.telephones.push(newTelephone)
-        })
-
-        commit('setSelectedUser', { id, user:newUser })
-
-
+        const selectedUser = _cloneDeep(user)
+        commit('setSelectedUser', { id, user:selectedUser })
       }
     },
     resetSelectedUser({ state, getters, dispatch }){
