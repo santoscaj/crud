@@ -202,8 +202,12 @@ export default Vue.extend({
       else
       {
         let id = this.$store.getters['getSelectedUser']['id']
+        let newPath = `/user/${id}`
+
         this.$store.commit('saveSelectedUser')
-        this.$router.push({path: `/user/${id}`})
+        if(newPath != this.$router.currentRoute.path)
+          this.$router.push({path: newPath})
+        // console.log('router',this.$router)
 
         this.$data.confirmation =
         {

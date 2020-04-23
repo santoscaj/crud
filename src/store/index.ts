@@ -2,7 +2,10 @@ import Vue from 'vue';
 import Vuex, { StoreOptions } from 'vuex';
 import { v4 } from 'uuid'
 import _cloneDeep from 'lodash/cloneDeep'
+import axios from 'axios'
+import qs from 'qs'
 
+let usersURL = 'http://localhost:3000/users'
 
 Vue.use(Vuex);
 
@@ -49,47 +52,7 @@ export default new Vuex.Store<RootState>({
     selectedUserId: '',
     selectedUser: new User(),
     users: [
-      {
-        id: v4(),
-        firstName: 'first',
-        lastName: 'last name',
-        telephones: [
-          {
-            id: v4(),
-            name: 'home',
-            number: '001-123-4567',
-          },
-        ],
-      },
-      {
-        id: v4(),
-        firstName: 'second',
-        lastName: 'another last name',
-        telephones: [
-          {
-            id: v4(),
-            name: 'home',
-            number: '002-123-4567',
-          },
-        ],
-      },
-      {
-        id: v4(),
-        firstName: 'third',
-        lastName: 'yet another last name',
-        telephones: [
-          {
-            id: v4(),
-            name: 'home',
-            number: '003-123-4567',
-          },
-          {
-            id: v4(),
-            name: 'work',
-            number: '003-123-4567',
-          },
-        ],
-      },
+      
     ],
   },
   getters: {
@@ -157,36 +120,54 @@ export default new Vuex.Store<RootState>({
       state.newPhone.number= data
     },
     deleteSelectedUser(state){
+
       let id = state.selectedUserId
       let index = state.users.findIndex(usr => usr.id == id)
-
+      
       if(index>-1){
-        state.users.splice(index, 1)
+        axios
+        .delete(usersURL+`/${id}`)
+        // .delete(usersURL+`/1836218`)
+        .then(response=>{
+          if (response.status == 200){
+            state.users.splice(index, 1)
+          }
+        })
+        .catch(err=>{
+          console.error(err)
+        })
+      }else{
+        console.error('ID not found in current list. Please reload page')
       }
 
+    },
+    setUsers(state,users){
+      state.users = users
     },
     saveSelectedUser(state){
       //
       const activeUserIndex = state.users.findIndex((user: User) => user.id == state.selectedUserId)
+      const userToBeSaved = state.selectedUser
+      const id = state.selectedUserId
 
       if(activeUserIndex > -1){
-        state.users.splice(activeUserIndex, 1, state.selectedUser)
-      } else {
-        state.users.push(state.selectedUser)
+          // Editing old user
+          axios.put(usersURL+`/${id}`,qs.stringify(userToBeSaved), {timeout: 1000})
+          .then(response=>{
+            if(response.status == 200)
+              state.users.splice(activeUserIndex, 1, userToBeSaved)
+          })
+          .catch(err=> {console.error('err')})
       }
-      state.selectedUserId = state.selectedUser.id
-
-      let newUser = new User()
-      newUser.firstName = state.selectedUser.firstName
-      newUser.lastName = state.selectedUser.lastName
-      state.selectedUser.telephones.forEach(t=>{
-        let newTelephone = new Telephone()
-        newTelephone.name = t.name
-        newTelephone.number = t.number
-
-        newUser.telephones.push(newTelephone)
-      })
-
+      else {
+        // Adding new user
+        axios.post(usersURL,qs.stringify(userToBeSaved), {timeout: 1000})
+        .then(response=>{
+          if(response.status == 200)
+            state.users.push(userToBeSaved)
+        })
+        .catch(err=> {console.error('err')})
+      }
     },
     removePhoneNumber(state, id){
       const phoneIndex = state.selectedUser.telephones.findIndex(usr => usr.id == id)

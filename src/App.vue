@@ -6,6 +6,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import axios from 'axios'
 
 import HelloWorld from './components/HelloWorld.vue';
 
@@ -15,6 +16,14 @@ export default Vue.extend({
     HelloWorld,
   },
   beforeCreate() {
+    axios.
+    get('http://localhost:3000/users')
+    .then(response=> {
+      if(response.status = 200)
+        this.$store.commit('setUsers',response.data)
+      console.log(response)
+    })
+    .catch(err=>console.log(err))
   },
 });
 </script>

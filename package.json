@@ -10,8 +10,10 @@
   "dependencies": {
     "@types/lodash": "^4.14.149",
     "@types/uuid": "^7.0.2",
+    "axios": "^0.19.2",
     "core-js": "^3.6.4",
     "lodash": "^4.17.15",
+    "qs": "^6.9.3",
     "uuid": "^7.0.3",
     "v-mask": "^2.1.0",
     "vue": "^2.6.11",
