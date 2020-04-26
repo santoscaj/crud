@@ -152,7 +152,7 @@ export default new Vuex.Store<RootState>({
 
       if(activeUserIndex > -1){
           // Editing old user
-          axios.put(usersURL+`/${id}`,qs.stringify(userToBeSaved), {timeout: 1000})
+          axios.put(usersURL+`/${id}`,qs.stringify(userToBeSaved))
           .then(response=>{
             if(response.status == 200)
               state.users.splice(activeUserIndex, 1, userToBeSaved)
@@ -161,7 +161,7 @@ export default new Vuex.Store<RootState>({
       }
       else {
         // Adding new user
-        axios.post(usersURL,qs.stringify(userToBeSaved), {timeout: 1000})
+        axios.post(usersURL,qs.stringify(userToBeSaved))
         .then(response=>{
           if(response.status == 200)
             state.users.push(userToBeSaved)
@@ -177,6 +177,11 @@ export default new Vuex.Store<RootState>({
     },
   },
   actions: {
+    async loadUsers(ctx){
+        let response = await axios.get('http://localhost:3000/users')
+        if(response.status = 200)
+          ctx.commit('setUsers',response.data)
+    },
     setSelectedUser({ commit, getters }, id){
       if (id==='new'){
         const newUser = new User()

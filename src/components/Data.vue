@@ -1,11 +1,10 @@
 <template>
 <div v-if="errorpage">
   Error 404 page not found. LOL
+  <Modal v-model="confirmation.visible" :message="confirmation.message" :title="confirmation.title" :callback="confirmation.callback()" :type="confirmation.type" />
 </div>
 <div v-else class="columns">
-
   <Modal v-model="confirmation.visible" :message="confirmation.message" :title="confirmation.title" :callback="confirmation.callback()" :type="confirmation.type" />
-  
   <DualInput :error="nameFieldValidation('', getSelectedUser.firstName)" :label="labels.firstName" v-model="getSelectedUser.firstName" />
   <DualInput :error="nameFieldValidation('',getSelectedUser.lastName)" :label="labels.lastName"  v-model="getSelectedUser.lastName" />
   <DualInput :label="labels.telephones" :editValue="false"  />
@@ -164,6 +163,22 @@ export default Vue.extend({
       return error
     }
   },
+  async mounted(){
+    try{
+      await this.$store.dispatch('loadUsers')
+    }catch(e){
+      // work on this
+      // await this.$nextTick()
+      this.$data.confirmation =
+        {
+          visible: true,
+          title: 'Error!',
+          message: 'Page could not load properly',
+          type: 'information',
+          callback: ()=>(confirmation: boolean)=>{}
+        }
+    }
+  },
   methods: {
     confirm(confirmation: boolean){
       console.log('confirmation received', confirmation)
@@ -198,24 +213,32 @@ export default Vue.extend({
           type: 'information',
           callback: ()=>(confirmation: boolean)=>{}
         }
-      }
-      else
-      {
+      }else{
         let id = this.$store.getters['getSelectedUser']['id']
         let newPath = `/user/${id}`
-
-        this.$store.commit('saveSelectedUser')
-        if(newPath != this.$router.currentRoute.path)
-          this.$router.push({path: newPath})
-        // console.log('router',this.$router)
-
-        this.$data.confirmation =
-        {
-          visible: true,
-          title: 'Information box',
-          message: 'User saved successfully!',
-          type: 'information',
-          callback: ()=>(confirmation: boolean)=>{}
+        try{
+          this.$store.commit('saveSelectedUser')
+          
+          if(newPath != this.$router.currentRoute.path)
+            this.$router.push({path: newPath})
+          
+          this.$data.confirmation =
+          {
+            visible: true,
+            title: 'Information box',
+            message: 'User saved successfully!',
+            type: 'information',
+            callback: ()=>(confirmation: boolean)=>{}
+          }
+        }catch(e){
+          console.error(e)
+          this.$data.confirmation ={
+            visible: true,
+            title: 'Error!',
+            message: 'User could not be saved',
+            type: 'information',
+            callback: ()=>(confirmation: boolean)=>{}
+          }
         }
       }
     },
