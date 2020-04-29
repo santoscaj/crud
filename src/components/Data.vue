@@ -166,6 +166,7 @@ export default Vue.extend({
   async mounted(){
     try{
       await this.$store.dispatch('loadUsers')
+      this.$store.dispatch('setSelectedUser', this.$route.params.id)
     }catch(e){
       // work on this
       // await this.$nextTick()
@@ -201,7 +202,7 @@ export default Vue.extend({
       this.$store.dispatch('addNewPhone');
       this.$store.commit('clearNewPhoneData');
     },
-    saveSelectedUser(){
+    async saveSelectedUser(){
       let self = this
       if(this.nameAndLastnameErrors || this.telephoneErrors){
 
@@ -214,14 +215,9 @@ export default Vue.extend({
           callback: ()=>(confirmation: boolean)=>{}
         }
       }else{
-        let id = this.$store.getters['getSelectedUser']['id']
-        let newPath = `/user/${id}`
         try{
-          this.$store.commit('saveSelectedUser')
-          
-          if(newPath != this.$router.currentRoute.path)
-            this.$router.push({path: newPath})
-          
+          const user = await this.$store.dispatch('saveSelectedUser', this.getSelectedUser)
+          this.$router.push({params: { id: user.id}})
           this.$data.confirmation =
           {
             visible: true,

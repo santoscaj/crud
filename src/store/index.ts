@@ -10,21 +10,16 @@ let usersURL = 'http://localhost:3000/users'
 Vue.use(Vuex);
 
 export class Telephone{
-  id: string = v4()
+  id: string = ''
   name: string = ''
   number: string = ''
 }
 
 class User{
-  id: string = v4()
+  id: string = ''
   firstName: string = ''
   lastName: string = ''
   telephones: Telephone[] =[]
-  //  = [{
-  //   id: v4(),
-  //   name: '',
-  //   number: '',
-  // }]
 }
 
 interface RootState {
@@ -122,6 +117,7 @@ export default new Vuex.Store<RootState>({
     deleteSelectedUser(state){
 
       let id = state.selectedUserId
+      console.log(state.selectedUserId)
       let index = state.users.findIndex(usr => usr.id == id)
       
       if(index>-1){
@@ -144,29 +140,12 @@ export default new Vuex.Store<RootState>({
     setUsers(state,users){
       state.users = users
     },
-    saveSelectedUser(state){
-      //
-      const activeUserIndex = state.users.findIndex((user: User) => user.id == state.selectedUserId)
-      const userToBeSaved = state.selectedUser
-      const id = state.selectedUserId
-
-      if(activeUserIndex > -1){
-          // Editing old user
-          axios.put(usersURL+`/${id}`,qs.stringify(userToBeSaved))
-          .then(response=>{
-            if(response.status == 200)
-              state.users.splice(activeUserIndex, 1, userToBeSaved)
-          })
-          .catch(err=> {console.error('err')})
-      }
-      else {
-        // Adding new user
-        axios.post(usersURL,qs.stringify(userToBeSaved))
-        .then(response=>{
-          if(response.status == 200)
-            state.users.push(userToBeSaved)
-        })
-        .catch(err=> {console.error('err')})
+    upsertUser(state, user){
+      const index = state.users.findIndex(u => u.id == user.id)
+      if (index < 0){
+        state.users.push(user)
+      }else {
+        state.users.splice(index,1,user)
       }
     },
     removePhoneNumber(state, id){
@@ -175,6 +154,9 @@ export default new Vuex.Store<RootState>({
         state.selectedUser.telephones.splice(phoneIndex, 1)
 
     },
+    setSelectedUserId(state, newId){
+      state.selectedUserId = newId
+    }
   },
   actions: {
     async loadUsers(ctx){
@@ -182,10 +164,17 @@ export default new Vuex.Store<RootState>({
         if(response.status = 200)
           ctx.commit('setUsers',response.data)
     },
+    async saveSelectedUser({state, commit}, user){
+      const isNew = !user.id
+      const method = isNew ? 'post' : 'put'
+      const response = await axios[method](usersURL + (!isNew ?`/${user.id}`:''), qs.stringify(user))
+      commit('upsertUser', response.data)
+      return response.data
+    },
     setSelectedUser({ commit, getters }, id){
       if (id==='new'){
         const newUser = new User()
-        const newUserID = v4()
+        const newUserID = 'new'
 
         commit('setSelectedUser', { id:newUserID, user:newUser })
       }
